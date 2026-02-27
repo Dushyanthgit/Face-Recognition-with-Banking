@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Bank</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Decorative secure elements -->
+    <div class="security-badge">
+        <span class="lock-icon">🔒</span> End-to-End Encrypted
+    </div>
+    
+    <div class="scanner-line"></div>
+    
+    <h1>Welcome to Face Recognition Bank</h1>
+    
+    <div class="btn-group">
+        <a href="/register" class="btn btn-primary">
+            <span class="btn-icon">👤</span> Register
+        </a>
+        <a href="/login" class="btn btn-secondary">
+            <span class="btn-icon">🔐</span> Login
+        </a>
+    </div>
+    
+    <div class="security-footer">
+        <span class="shield-icon">🛡️</span> Biometric Authentication • 256-bit SSL
+    </div>
+     <script>
+        // 🔹 Add floating particles dynamically for secure-tech ambiance
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (12 + Math.random() * 10) + 's';
+                body.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>

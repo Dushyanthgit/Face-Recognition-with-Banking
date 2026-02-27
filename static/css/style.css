@@ -1,0 +1,355 @@
+
+        @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Open Sans", sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            background: #0a0e17;
+        }
+
+        /* 🔹 Background with secure tech pattern */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at top, rgba(23, 58, 133, 0.4) 0%, transparent 70%),
+                radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.25) 0%, transparent 70%),
+                url("../images/bankimg.jpg") center/cover no-repeat;
+            filter: brightness(0.6) contrast(1.1);
+            z-index: -2;
+        }
+
+        /* 🔹 Animated grid overlay for "tech" feel */
+        body::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 20s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+        }
+
+        /* 🔹 Security Badge */
+        .security-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6ee7b7;
+            backdrop-filter: blur(8px);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .lock-icon {
+            font-size: 1.1rem;
+        }
+
+        /* 🔹 Face Scan Animation Line */
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+            box-shadow: 0 0 20px #0ea5e9, 0 0 40px #0ea5e9;
+            animation: scan 3s ease-in-out infinite;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        @keyframes scan {
+            0%, 100% { top: -10%; opacity: 0; }
+            10% { opacity: 0.9; }
+            90% { opacity: 0.9; }
+            100% { top: 110%; opacity: 0; }
+        }
+
+        /* 🔹 Main Heading */
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 700;
+            margin: 40px 20px 35px;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 50%, #67e8f9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 30px rgba(14, 165, 233, 0.3);
+            position: relative;
+            z-index: 2;
+            letter-spacing: -0.5px;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+            border-radius: 2px;
+        }
+
+        /* 🔹 Button Group */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+            max-width: 320px;
+            padding: 0 20px;
+            z-index: 2;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px 24px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+            color: #fff;
+            box-shadow: 
+                0 4px 20px rgba(59, 130, 246, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 30px rgba(59, 130, 246, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(96, 165, 250, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(192, 38, 124, 0.12));
+            color: #fff;
+            box-shadow: 
+                0 4px 20px rgba(236, 72, 153, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 30px rgba(236, 72, 153, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border-color: rgba(249, 168, 212, 0.5);
+        }
+
+        .btn-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover .btn-icon {
+            transform: scale(1.15);
+        }
+
+        /* 🔹 Security Footer */
+        .security-footer {
+            margin-top: 45px;
+            padding: 12px 25px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+
+        .shield-icon {
+            font-size: 1.1rem;
+            color: #60a5fa;
+        }
+
+        /* 🔹 Floating Particles (subtle security vibe) */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(14, 165, 233, 0.6);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-20vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 🔹 Responsive */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.9rem;
+                margin: 30px 15px 25px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
+            
+            .security-badge {
+                top: 15px;
+                right: 15px;
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+            
+            .security-footer {
+                margin-top: 35px;
+                font-size: 0.8rem;
+                padding: 10px 20px;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+    /* Pure CSS cursor highlight on interactive elements */
+a, button, input {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%230ea5e9' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%23fff'/%3E%3C/svg%3E") 12 12, auto;
+}
+
+/* 🔹 NOTE: Pure CSS cannot track mouse movement for a trail. 
+   This CSS creates a Custom Star Cursor + Sparkle Animations.
+   For the moving trail, you need the JavaScript from before. */
+
+/* 1. Custom Star Cursor (Works with CSS Only) */
+body {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%230ea5e9' d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z'/></svg>") 12 12, auto;
+}
+
+/* 2. Sparkle Animation Keyframes */
+@keyframes sparkleAnim {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+/* 3. Sparkle Class (Use with JS for trail, or hover for effect) */
+.sparkle {
+  position: fixed;
+  pointer-events: none;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #fff, #0ea5e9, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: sparkleAnim 0.6s ease-out forwards;
+  z-index: 9999;
+  box-shadow: 0 0 10px #0ea5e9, 0 0 20px rgba(14, 165, 233, 0.5);
+}
+
+/* 4. CSS-Only Hover Sparkles (Alternative to JS Trail) */
+a, button {
+  position: relative;
+  overflow: visible;
+}
+
+a:hover::after, button:hover::after {
+  content: "✦";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #0ea5e9;
+  font-size: 20px;
+  animation: sparkleAnim 0.5s ease-out;
+  pointer-events: none;
+  text-shadow: 0 0 10px #0ea5e9;
+}
+
+/* 5. Glow Effect on Cursor Hover (Simulated) */
+a:hover, button:hover {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2322d3ee' d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z'/></svg>") 12 12, pointer;
+  text-shadow: 0 0 8px rgba(14, 165, 233, 0.8);
+}
+   
