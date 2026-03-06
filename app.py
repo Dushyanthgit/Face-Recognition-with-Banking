@@ -171,19 +171,29 @@ def admin_dashboard():
     cursor.execute("SELECT COUNT(*) FROM transactions")
     total_transactions = cursor.fetchone()[0]
 
-    # All users (IMPORTANT: remove face_encoding column)
+    # All users
     cursor.execute("""
         SELECT id, name, email, phone_number, account_number, balance, status
         FROM users
     """)
     users = cursor.fetchall()
 
-    # All transactions
+    # All transactions with sender & receiver names
     cursor.execute("""
-        SELECT id, sender_id, receiver_id, amount, type, balance_after, created_at
-        FROM transactions
-        ORDER BY created_at DESC
+        SELECT 
+        t.id,
+        s.name AS sender_name,
+        r.name AS receiver_name,
+        t.amount,
+        t.type,
+        t.balance_after,
+        t.created_at
+        FROM transactions t
+        JOIN users s ON t.sender_id = s.id
+        JOIN users r ON t.receiver_id = r.id
+        ORDER BY t.created_at DESC
     """)
+
     transactions = cursor.fetchall()
 
     return render_template(
@@ -194,7 +204,6 @@ def admin_dashboard():
         users=users,
         transactions=transactions
     )
-
 #-------Freeze Account--------------
 
 @app.route("/admin/freeze/<int:user_id>")
@@ -212,7 +221,6 @@ def freeze_account(user_id):
 #--------------UnFreeze Account-------------
 
 
-    
 # ---------------- DASHBOARD ----------------
 
 @app.route('/dashboard')
