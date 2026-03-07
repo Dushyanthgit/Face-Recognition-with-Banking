@@ -179,7 +179,7 @@ def admin_login():
 
     return render_template("admin_login.html")
 
-#---------admin dashboard--------------
+#---------Admin dashboard--------------
 
 @app.route("/admin_dashboard")
 def admin_dashboard():
@@ -369,6 +369,7 @@ def transaction():
         return str(e)
 
     return redirect('/dashboard')
+
 
 # ---------------- LOGOUT ----------------
 @app.route('/logout')
