@@ -33,6 +33,31 @@ def generate_account_number(phone):
         if not existing:
             return acc_no
 
+#---------------- SERVICES ----------------
+
+@app.route('/services')
+def services():
+    return render_template("services.html")
+
+#---------------- ABOUT ----------------
+
+@app.route('/about')
+def about():
+    return render_template("about.html")
+
+#---------------- LOANS ----------------
+
+@app.route('/loans')
+def loans():
+    return render_template("loans.html")
+
+# ---------------- SCHEMES ----------------
+
+@app.route('/schemes')
+def schemes():
+    return render_template("schemes.html")
+
+
 # ---------------- HOME ----------------
 @app.route('/')
 def home():
