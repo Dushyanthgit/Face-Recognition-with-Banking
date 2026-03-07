@@ -57,6 +57,11 @@ def loans():
 def schemes():
     return render_template("schemes.html")
 
+#------------Contact---------------
+
+@app.route('/contact')
+def contact():
+    return render_template("contact.html")
 
 # ---------------- HOME ----------------
 @app.route('/')

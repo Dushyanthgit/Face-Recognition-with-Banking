@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us - Face Bank</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap");
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Open Sans", sans-serif; }
+body {
+display: flex; min-height: 100vh; position: relative; overflow-x: hidden;
+color: #fff; background: #0a0e17;
+}
+body::before {
+content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: radial-gradient(ellipse at top, rgba(23, 58, 133, 0.4) 0%, transparent 70%),
+radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.25) 0%, transparent 70%);
+z-index: -2;
+}
+body::after {
+content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+background-size: 40px 40px; animation: gridMove 20s linear infinite;
+z-index: -1; pointer-events: none;
+}
+@keyframes gridMove {
+0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+}
+.menu-toggle {
+position: fixed; top: 25px; left: 25px; z-index: 1001;
+width: 50px; height: 50px;
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.2));
+border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 12px;
+cursor: pointer; display: flex; flex-direction: column;
+align-items: center; justify-content: center; gap: 5px;
+backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.menu-toggle:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(14, 165, 233, 0.5); border-color: rgba(96, 165, 250, 0.7); }
+.menu-toggle:active { transform: scale(0.95); }
+.menu-toggle .bar {
+width: 24px; height: 2.5px; background: linear-gradient(90deg, #60a5fa, #22d3ee);
+border-radius: 3px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
+}
+.menu-toggle.active .bar:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); background: #f87171; }
+.menu-toggle.active .bar:nth-child(2) { opacity: 0; transform: translateX(-10px); }
+.menu-toggle.active .bar:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); background: #f87171; }
+.sidebar {
+position: fixed; top: 0; left: -320px; width: 300px; height: 100vh;
+background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+border-right: 1px solid rgba(148, 163, 184, 0.2); backdrop-filter: blur(20px);
+z-index: 1000; transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; overflow-y: auto;
+}
+.sidebar.active { left: 0; }
+.sidebar-header {
+padding: 25px 25px 20px; border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+display: flex; align-items: center; justify-content: space-between;
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent);
+}
+.sidebar-brand { display: flex; align-items: center; gap: 12px; }
+.sidebar-brand-icon {
+width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+border-radius: 12px; display: flex; align-items: center; justify-content: center;
+font-size: 1.5rem; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.sidebar-brand h2 {
+font-size: 1.5rem; font-weight: 700;
+background: linear-gradient(135deg, #fff 0%, #67e8f9 100%);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-menu { list-style: none; padding: 20px 15px; flex: 1; }
+.nav-item {
+margin-bottom: 8px; opacity: 0; transform: translateX(-20px);
+animation: slideIn 0.4s ease forwards;
+}
+.nav-item:nth-child(1) { animation-delay: 0.1s; }
+.nav-item:nth-child(2) { animation-delay: 0.15s; }
+.nav-item:nth-child(3) { animation-delay: 0.2s; }
+.nav-item:nth-child(4) { animation-delay: 0.25s; }
+.nav-item:nth-child(5) { animation-delay: 0.3s; }
+.nav-item:nth-child(6) { animation-delay: 0.35s; }
+@keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+.nav-link {
+display: flex; align-items: center; gap: 15px; padding: 16px 20px;
+color: #cbd5e1; text-decoration: none; border-radius: 14px;
+font-weight: 500; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+border: 1px solid transparent; position: relative; overflow: hidden;
+}
+.nav-link::before {
+content: ""; position: absolute; left: 0; top: 0; height: 100%; width: 0;
+background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), transparent);
+transition: width 0.3s ease;
+}
+.nav-link:hover::before, .nav-link.active::before { width: 100%; }
+.nav-link:hover, .nav-link.active {
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+border-color: rgba(96, 165, 250, 0.4); color: #fff;
+transform: translateX(8px); box-shadow: 0 4px 20px rgba(14, 165, 233, 0.25);
+}
+.nav-link span.icon { font-size: 1.4rem; width: 28px; text-align: center; position: relative; z-index: 1; }
+.nav-link span.text { position: relative; z-index: 1; }
+.sidebar-footer {
+padding: 20px 25px; border-top: 1px solid rgba(148, 163, 184, 0.2);
+text-align: center; background: rgba(15, 23, 42, 0.5);
+}
+.sidebar-footer p { color: #64748b; font-size: 0.85rem; margin-bottom: 5px; }
+.sidebar-footer .developer { color: #67e8f9; font-weight: 600; text-decoration: none; transition: color 0.3s; }
+.sidebar-footer .developer:hover { color: #fff; text-decoration: underline; }
+.sidebar-overlay {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+}
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+.main-content {
+flex: 1; margin-left: 0; padding: 30px; display: flex;
+flex-direction: column; min-height: 100vh; transition: margin-left 0.4s ease; width: 100%;
+}
+@media (min-width: 1025px) { .sidebar.active + .main-content { margin-left: 300px; } }
+.security-badge {
+position: fixed; top: 25px; right: 25px; display: flex; align-items: center; gap: 10px;
+padding: 10px 20px; background: rgba(16, 185, 129, 0.15);
+border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 50px;
+font-size: 0.85rem; font-weight: 600; color: #6ee7b7;
+backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite;
+z-index: 100; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+@keyframes pulse {
+0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+}
+.scanner-line {
+position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+box-shadow: 0 0 20px #0ea5e9, 0 0 40px #0ea5e9;
+animation: scan 3s ease-in-out infinite; z-index: 50; opacity: 0.9;
+}
+@keyframes scan {
+0%, 100% { top: -10%; opacity: 0; }
+10% { opacity: 0.9; }
+90% { opacity: 0.9; }
+100% { top: 110%; opacity: 0; }
+}
+.dashboard-container { width: 100%; max-width: 900px; margin: 80px auto 40px; padding: 0 10px; flex: 1; }
+.page-header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.page-header h1 {
+font-size: 2.5rem; font-weight: 700;
+background: linear-gradient(135deg, #fff 0%, #a5b4fc 50%, #67e8f9 100%);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+margin-bottom: 10px; position: relative; display: inline-block;
+}
+.page-header h1::after {
+content: ""; position: absolute; bottom: -12px; left: 50%;
+transform: translateX(-50%); width: 80px; height: 3px;
+background: linear-gradient(90deg, #0ea5e9, #22d3ee); border-radius: 2px;
+}
+.page-header p { color: #94a3b8; font-size: 1.1rem; max-width: 700px; margin: 0 auto; line-height: 1.7; }
+.contact-card {
+background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.3);
+border-radius: 20px; padding: 30px; margin-bottom: 25px; backdrop-filter: blur(16px);
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+transition: all 0.3s ease; animation: fadeInUp 0.6s ease; animation-fill-mode: both;
+}
+.contact-card:nth-child(1) { animation-delay: 0.1s; }
+.contact-card:nth-child(2) { animation-delay: 0.15s; }
+.contact-card:nth-child(3) { animation-delay: 0.2s; }
+.contact-card:nth-child(4) { animation-delay: 0.25s; }
+.contact-card:nth-child(5) { animation-delay: 0.3s; }
+.contact-card:hover {
+transform: translateY(-4px);
+box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15), 0 0 30px rgba(14, 165, 233, 0.2);
+}
+.contact-card h3 {
+color: #fff; margin-bottom: 15px; font-size: 1.4rem; font-weight: 600;
+background: linear-gradient(135deg, #fff 0%, #67e8f9 100%);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+display: flex; align-items: center; gap: 12px;
+}
+.contact-card h3 .icon { font-size: 1.6rem; }
+.contact-card h4 {
+color: #67e8f9; margin: 20px 0 12px; font-size: 1.1rem; font-weight: 600;
+}
+.contact-card p { color: #cbd5e1; margin: 10px 0; font-size: 1rem; line-height: 1.7; }
+.contact-features { list-style: none; margin-top: 15px; padding-left: 5px; }
+.contact-features li {
+color: #94a3b8; padding: 8px 0 8px 28px; position: relative; font-size: 0.95rem;
+}
+.contact-features li::before {
+content: "✓"; position: absolute; left: 0; top: 8px;
+width: 20px; height: 20px; background: rgba(16, 185, 129, 0.2);
+border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 50%;
+color: #34d399; display: flex; align-items: center; justify-content: center;
+font-size: 0.75rem; font-weight: 600;
+}
+.contact-card.featured {
+border-color: rgba(96, 165, 250, 0.5);
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(30, 41, 59, 0.7));
+box-shadow: 0 8px 32px rgba(14, 165, 233, 0.2), 0 0 0 1px rgba(96, 165, 250, 0.3);
+}
+.contact-card.featured h3 { color: #67e8f9; }
+.team-member {
+display: flex; align-items: flex-start; gap: 20px; padding: 20px;
+background: rgba(15, 23, 42, 0.6); border-radius: 16px;
+border: 1px solid rgba(148, 163, 184, 0.2); margin-bottom: 15px;
+transition: all 0.3s ease;
+}
+.team-member:hover {
+transform: translateX(5px); border-color: rgba(96, 165, 250, 0.4);
+box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
+}
+.team-avatar {
+width: 60px; height: 60px; background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+border-radius: 50%; display: flex; align-items: center; justify-content: center;
+font-size: 1.8rem; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); flex-shrink: 0;
+}
+.team-info .name { color: #fff; font-weight: 600; font-size: 1.1rem; margin-bottom: 4px; }
+.team-info .role { color: #67e8f9; font-size: 0.9rem; font-weight: 500; margin-bottom: 8px; }
+.team-info .contact-detail { color: #94a3b8; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.team-info .contact-detail a { color: #67e8f9; text-decoration: none; transition: color 0.2s; }
+.team-info .contact-detail a:hover { color: #fff; }
+.contact-form { display: flex; flex-direction: column; gap: 18px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { color: #94a3b8; font-size: 0.9rem; font-weight: 500; }
+.form-group input, .form-group textarea, .form-group select {
+width: 100%; padding: 14px 18px; border-radius: 12px;
+border: 1px solid rgba(148, 163, 184, 0.4);
+background: rgba(15, 23, 42, 0.8); color: #fff;
+font-size: 0.95rem; transition: all 0.3s ease; outline: none;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25), 0 4px 20px rgba(14, 165, 233, 0.15);
+background: rgba(15, 23, 42, 0.95);
+}
+.form-group textarea { min-height: 120px; resize: vertical; }
+.submit-btn {
+display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 1rem;
+transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(12px);
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+color: #fff; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+cursor: pointer; width: fit-content; align-self: flex-start; position: relative; overflow: hidden;
+}
+.submit-btn::before {
+content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+transition: left 0.5s ease;
+}
+.submit-btn:hover::before { left: 100%; }
+.submit-btn:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 30px rgba(59, 130, 246, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+border-color: rgba(96, 165, 250, 0.6);
+}
+.submit-btn:active { transform: translateY(-1px) scale(0.98); }
+.office-hours {
+display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 15px; margin-top: 15px;
+}
+.hour-item {
+background: rgba(15, 23, 42, 0.6); padding: 15px 20px; border-radius: 12px;
+border: 1px solid rgba(148, 163, 184, 0.2); text-align: center;
+}
+.hour-item .label { color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; }
+.hour-item .value { color: #67e8f9; font-weight: 600; font-size: 1rem; }
+.hour-item .value.online { color: #34d399; }
+.security-footer {
+margin: 30px auto; padding: 12px 25px; background: rgba(30, 41, 59, 0.6);
+border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 50px;
+font-size: 0.85rem; color: #94a3b8; display: flex; align-items: center; gap: 8px;
+backdrop-filter: blur(10px); width: fit-content; animation: fadeInUp 0.6s ease 0.5s both;
+}
+.shield-icon { font-size: 1.1rem; color: #60a5fa; }
+.main-footer {
+background: rgba(15, 23, 42, 0.9); border-top: 1px solid rgba(148, 163, 184, 0.2);
+padding: 30px; margin-top: auto; text-align: center; backdrop-filter: blur(10px);
+animation: fadeInUp 0.6s ease 0.6s both;
+}
+.main-footer p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 8px; }
+.main-footer .developer { color: #67e8f9; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+.main-footer .developer:hover { color: #fff; text-decoration: underline; text-shadow: 0 0 10px rgba(103, 232, 249, 0.5); }
+.footer-links { margin-top: 15px; display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; }
+.footer-links a {
+color: #64748b; text-decoration: none; font-size: 0.85rem; transition: all 0.3s; position: relative;
+}
+.footer-links a::after {
+content: ""; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px;
+background: #67e8f9; transition: width 0.3s;
+}
+.footer-links a:hover { color: #67e8f9; }
+.footer-links a:hover::after { width: 100%; }
+.back-to-dashboard {
+display: inline-flex; align-items: center; gap: 8px; margin: 20px auto 30px;
+padding: 12px 24px; background: rgba(59, 130, 246, 0.2);
+border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 12px;
+color: #60a5fa; text-decoration: none; font-weight: 600; font-size: 0.95rem;
+transition: all 0.3s ease; width: fit-content; animation: fadeInUp 0.6s ease 0.5s both;
+}
+.back-to-dashboard:hover {
+background: rgba(59, 130, 246, 0.35); border-color: rgba(96, 165, 250, 0.7);
+color: #fff; transform: translateX(-4px); box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+.particle {
+position: fixed; width: 4px; height: 4px; background: rgba(14, 165, 233, 0.6);
+border-radius: 50%; animation: float 15s infinite linear; z-index: 0; pointer-events: none;
+}
+@keyframes float {
+0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+10% { opacity: 1; }
+90% { opacity: 1; }
+100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+}
+.toast-container {
+position: fixed; top: 20px; right: 20px; z-index: 2000;
+display: flex; flex-direction: column; gap: 10px; max-width: 350px;
+}
+.toast {
+background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(148, 163, 184, 0.3);
+border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
+animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards; max-width: 100%;
+}
+.toast.success { border-left: 4px solid #34d399; }
+.toast.error { border-left: 4px solid #f87171; }
+.toast.info { border-left: 4px solid #60a5fa; }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
+.toast-icon { font-size: 1.3rem; min-width: 24px; }
+.toast.success .toast-icon { color: #34d399; }
+.toast.error .toast-icon { color: #f87171; }
+.toast.info .toast-icon { color: #60a5fa; }
+.toast-message { flex: 1; font-size: 0.9rem; color: #cbd5e1; }
+.toast-close { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2rem; padding: 0 4px; transition: color 0.2s; }
+.toast-close:hover { color: #fff; }
+@media (max-width: 1024px) { .main-content { padding: 20px 15px; } .dashboard-container { margin: 70px auto 30px; } }
+@media (max-width: 768px) {
+.page-header h1 { font-size: 1.8rem; } .contact-card { padding: 20px; }
+.footer-links { flex-direction: column; gap: 10px; }
+.toast-container { right: 10px; left: 10px; max-width: none; }
+.form-row { grid-template-columns: 1fr; }
+.team-member { flex-direction: column; text-align: center; }
+.team-info .contact-detail { justify-content: center; }
+}
+@media (max-width: 480px) {
+.page-header h1 { font-size: 1.5rem; } .contact-card h3 { font-size: 1.2rem; }
+.menu-toggle { width: 45px; height: 45px; } .sidebar { width: 280px; }
+.submit-btn { width: 100%; align-self: stretch; }
+}
+.sparkle {
+position: fixed; pointer-events: none; width: 8px; height: 8px;
+background: radial-gradient(circle, #fff, #0ea5e9, transparent 70%);
+border-radius: 50%; animation: sparkleAnim 0.6s ease-out forwards; z-index: 9999;
+}
+@keyframes sparkleAnim {
+0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+50% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+.shortcut-hint {
+position: fixed; bottom: 20px; right: 20px; background: rgba(30, 41, 59, 0.9);
+border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px;
+padding: 8px 14px; font-size: 0.8rem; color: #94a3b8;
+backdrop-filter: blur(10px); display: flex; align-items: center; gap: 6px;
+animation: fadeInUp 0.5s ease 1s both;
+}
+.shortcut-key { background: rgba(96, 165, 250, 0.2); padding: 2px 8px; border-radius: 4px; color: #60a5fa; font-weight: 600; }
+.face_bank { margin-left: 18px; }
+.mission-highlight {
+display: inline-block; padding: 6px 16px; background: rgba(14, 165, 233, 0.2);
+border: 1px solid rgba(14, 165, 233, 0.4); border-radius: 20px;
+color: #67e8f9; font-weight: 600; font-size: 0.9rem; margin: 10px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- 🔹 Menu Toggle Button -->
+<button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+<span class="bar"></span><span class="bar"></span><span class="bar"></span>
+</button>
+
+<!-- 🔹 Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- 🔹 Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-brand">
+<div class="sidebar-brand-icon">🏦</div>
+<h2 class="face_bank">Face Bank</h2>
+</div>
+</div>
+<ul class="nav-menu">
+<li class="nav-item"><a href="/dashboard" class="nav-link"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+<li class="nav-item"><a href="/services" class="nav-link"><span class="icon">⚙️</span><span class="text">Services</span></a></li>
+<li class="nav-item"><a href="/about" class="nav-link"><span class="icon">ℹ️</span><span class="text">About Us</span></a></li>
+<li class="nav-item"><a href="/loans" class="nav-link"><span class="icon">💰</span><span class="text">Loan</span></a></li>
+<li class="nav-item"><a href="/schemes" class="nav-link"><span class="icon">🎁</span><span class="text">Schemes</span></a></li>
+<li class="nav-item"><a href="/contact" class="nav-link active"><span class="icon">📞</span><span class="text">Contact</span></a></li>
+</ul>
+<div class="sidebar-footer">
+<p>© 2024 Face Bank</p>
+<p>Developed by <a href="#" class="developer">Dushyanth N G</a></p>
+</div>
+</aside>
+
+<!-- 🔹 Main Content -->
+<main class="main-content">
+<div class="security-badge"><span>🔒</span> End-to-End Encrypted</div>
+<div class="scanner-line"></div>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+
+<div class="page-header">
+<h1>Contact Us</h1>
+<p>Face Bank is a modern digital banking platform designed to provide secure, fast, and intelligent financial services through advanced biometric authentication technology.</p>
+</div>
+
+<!-- Mission Section -->
+<div class="contact-card featured">
+<h3><span class="icon">🎯</span>Our Mission</h3>
+<p>Our mission is to build a secure, reliable, and accessible digital banking ecosystem that empowers individuals and businesses to manage their finances efficiently.</p>
+<div class="mission-highlight">✨ Innovation • Security • Customer Convenience</div>
+<p>Face Bank focuses on creating a next-generation banking experience by combining financial services with modern technology such as facial recognition and digital security.</p>
+</div>
+
+<!-- Leadership Team -->
+<div class="contact-card">
+<h3><span class="icon">👥</span>Leadership Team</h3>
+<p>Face Bank was founded and developed by two technology innovators who share a vision of transforming traditional banking systems into intelligent and secure digital platforms.</p>
+
+<div class="team-member">
+<div class="team-avatar">👨‍💻</div>
+<div class="team-info">
+<div class="name">Dushyanth N G</div>
+<div class="role">Co-Founder & System Architect</div>
+<div class="contact-detail">📧 <a href="mailto:dushyanthng29@gmail.com">dushyanthng29@gmail.com</a></div>
+<div class="contact-detail">📱 +91 12345 67890</div>
+</div>
+</div>
+<p style="margin-top:10px;color:#94a3b8;font-size:0.9rem;">Dushyanth played a key role in designing the system architecture and integrating facial recognition authentication into the banking platform. His focus is on building secure and scalable digital banking systems.</p>
+
+<div class="team-member" style="margin-top:15px;">
+<div class="team-avatar">👨‍💻</div>
+<div class="team-info">
+<div class="name">Aravind M M G</div>
+<div class="role">Co-Founder & Technology Lead</div>
+<div class="contact-detail">📧 <a href="mailto:aravindmmg29@gmail.com">aravindmmg29@gmail.com</a></div>
+<div class="contact-detail">📱 +91 12345 67890</div>
+</div>
+</div>
+<p style="margin-top:10px;color:#94a3b8;font-size:0.9rem;">Aravind contributed to the development of the backend banking infrastructure and database systems that support user accounts, transactions, and administrative monitoring.</p>
+</div>
+
+<!-- Customer Support Info -->
+<div class="contact-card">
+<h3><span class="icon">💬</span>Customer Support</h3>
+<p>Face Bank is committed to providing reliable customer support for all users of the platform. If you have questions regarding account services, transactions, or technical issues, please contact us using the form below.</p>
+<ul class="contact-features">
+<li>📧 Email support with 24-hour response time</li>
+<li>📞 Phone support during business hours</li>
+<li>💬 Live chat available on dashboard</li>
+<li>🎫 Ticket system for technical issues</li>
+</ul>
+</div>
+
+<!-- Contact Form -->
+<div class="contact-card">
+<h3><span class="icon">✉️</span>Send Us a Message</h3>
+<form class="contact-form" id="contactForm" onsubmit="handleSubmit(event)">
+<div class="form-row">
+<div class="form-group">
+<label for="firstname">First Name *</label>
+<input type="text" id="firstname" name="firstname" required placeholder="Enter your first name">
+</div>
+<div class="form-group">
+<label for="lastname">Last Name *</label>
+<input type="text" id="lastname" name="lastname" required placeholder="Enter your last name">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="email">Email Address *</label>
+<input type="email" id="email" name="email" required placeholder="your@email.com">
+</div>
+<div class="form-group">
+<label for="phone">Phone Number *</label>
+<input type="tel" id="phone" name="phone" required placeholder="+91 XXXXX XXXXX">
+</div>
+</div>
+<div class="form-group">
+<label for="subject">Subject *</label>
+<input type="text" id="subject" name="subject" required placeholder="How can we help?">
+</div>
+<div class="form-group">
+<label for="message">Your Message *</label>
+<textarea id="message" name="message" required placeholder="Describe your query in detail..."></textarea>
+</div>
+<button type="submit" class="submit-btn">📤 Send Message</button>
+</form>
+</div>
+
+<!-- Office Hours -->
+<div class="contact-card">
+<h3><span class="icon">🕐</span>Office Hours</h3>
+<div class="office-hours">
+<div class="hour-item">
+<div class="label">Customer Support</div>
+<div class="value">Monday – Friday</div>
+</div>
+<div class="hour-item">
+<div class="label">Support Hours</div>
+<div class="value">9:00 AM – 6:00 PM</div>
+</div>
+<div class="hour-item">
+<div class="label">Online Banking</div>
+<div class="value online">Available 24/7</div>
+</div>
+<div class="hour-item">
+<div class="label">Emergency Support</div>
+<div class="value">Priority Response</div>
+</div>
+</div>
+</div>
+
+<div class="security-footer">
+<span class="shield-icon">🛡️</span> Biometric Authentication • 256-bit SSL • Secure Communication
+</div>
+
+<!-- Back to Dashboard - Bottom Position -->
+<a href="/dashboard" class="back-to-dashboard">← Back to Dashboard</a>
+
+</div>
+
+<!-- 🔹 Main Footer -->
+<footer class="main-footer">
+<p>© <script>document.write(new Date().getFullYear())</script> Face Bank. All rights reserved.</p>
+<p>Developed by <a href="#" class="developer">Dushyanth N G</a></p>
+<div class="footer-links">
+<a href="#">Privacy Policy</a>
+<a href="#">Terms of Service</a>
+<a href="#">Security</a>
+<a href="#">Contact Support</a>
+<a href="#">Help Center</a>
+</div>
+</footer>
+</main>
+
+<div class="shortcut-hint"><span class="shortcut-key">Ctrl</span> + <span class="shortcut-key">K</span> to search</div>
+
+<script>
+// 🔹 Sidebar Toggle
+function toggleSidebar() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const menuToggle = document.getElementById('menuToggle');
+sidebar.classList.toggle('active');
+overlay.classList.toggle('active');
+menuToggle.classList.toggle('active');
+if (window.innerWidth <= 1024) {
+document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+}
+}
+
+// 🔹 Toast Notifications
+function showToast(message, type = 'info') {
+const container = document.getElementById('toastContainer');
+const toast = document.createElement('div');
+toast.className = `toast ${type}`;
+const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span class="toast-message">${message}</span><button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+container.appendChild(toast);
+setTimeout(() => toast.remove(), 3000);
+}
+
+// 🔹 Form Submit Handler
+function handleSubmit(e) {
+e.preventDefault();
+const btn = e.target.querySelector('.submit-btn');
+const originalText = btn.innerHTML;
+btn.disabled = true;
+btn.innerHTML = '⏳ Sending...';
+setTimeout(() => {
+showToast('Thank you! Your message has been sent successfully. We\'ll get back to you soon.', 'success');
+e.target.reset();
+btn.disabled = false;
+btn.innerHTML = originalText;
+}, 1500);
+}
+
+// 🔹 Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+if (e.ctrlKey && e.key === 'k') { e.preventDefault(); showToast('Search focused', 'info'); }
+if (e.key === 'Escape') { const sb = document.getElementById('sidebar'); if (sb?.classList.contains('active')) toggleSidebar(); }
+});
+
+// 🔹 DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+createParticles();
+const interactiveElements = document.querySelectorAll('input, button, a, .nav-link, .back-to-dashboard, .submit-btn');
+interactiveElements.forEach(el => {
+el.addEventListener('mousemove', (e) => { if (Math.random() > 0.85) createSparkle(e.pageX, e.pageY); });
+});
+document.querySelectorAll('button').forEach(button => {
+button.addEventListener('click', function(e) {
+if (this.classList.contains('toast-close')) return;
+const ripple = document.createElement('span');
+const rect = this.getBoundingClientRect();
+const size = Math.max(rect.width, rect.height);
+const x = e.clientX - rect.left - size / 2;
+const y = e.clientY - rect.top - size / 2;
+ripple.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,0.3);left:${x}px;top:${y}px;transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;`;
+this.style.position = 'relative'; this.style.overflow = 'hidden'; this.appendChild(ripple);
+setTimeout(() => ripple.remove(), 600);
+});
+});
+window.addEventListener('resize', () => {
+if (window.innerWidth > 1024) {
+document.getElementById('sidebar')?.classList.remove('active');
+document.getElementById('sidebarOverlay')?.classList.remove('active');
+document.getElementById('menuToggle')?.classList.remove('active');
+document.body.style.overflow = 'auto';
+}
+});
+});
+
+// 🔹 Particles & Sparkles
+function createParticles() {
+const body = document.body;
+for (let i = 0; i < 15; i++) {
+const p = document.createElement('div');
+p.className = 'particle';
+p.style.left = Math.random() * 100 + 'vw';
+p.style.animationDelay = Math.random() * 15 + 's';
+p.style.animationDuration = (12 + Math.random() * 10) + 's';
+body.appendChild(p);
+}
+}
+function createSparkle(x, y) {
+const s = document.createElement('div');
+s.className = 'sparkle';
+s.style.left = x + 'px'; s.style.top = y + 'px';
+document.body.appendChild(s);
+setTimeout(() => s.remove(), 600);
+}
+const style = document.createElement('style');
+style.textContent = `@keyframes ripple { to { transform: scale(2); opacity: 0; } }`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
