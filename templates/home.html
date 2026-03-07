@@ -3,10 +3,285 @@
 <head>
     <title>Face Bank</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap");
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Open Sans", sans-serif; }
+
+        body {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; position: relative; overflow: hidden; color: #fff;
+            background: #0a0e17;
+        }
+
+        body::before {
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at top, rgba(23, 58, 133, 0.4) 0%, transparent 70%),
+                        radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.25) 0%, transparent 70%),
+                        url("../static/images/bankimg.jpg") center/cover no-repeat;
+            filter: brightness(0.6) contrast(1.1); z-index: -2;
+        }
+
+        body::after {
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; animation: gridMove 20s linear infinite;
+            z-index: -1; pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+        }
+
+        .security-badge {
+            position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 8px;
+            padding: 8px 16px; background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 50px;
+            font-size: 0.85rem; font-weight: 500; color: #6ee7b7;
+            backdrop-filter: blur(8px); animation: pulse 2s ease-in-out infinite; z-index: 10;
+        }
+        .lock-icon { font-size: 1.1rem; }
+
+        .scanner-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+            box-shadow: 0 0 20px #0ea5e9, 0 0 40px #0ea5e9;
+            animation: scan 3s ease-in-out infinite; z-index: 1; opacity: 0.9;
+        }
+        @keyframes scan {
+            0%, 100% { top: -10%; opacity: 0; }
+            10% { opacity: 0.9; } 90% { opacity: 0.9; }
+            100% { top: 110%; opacity: 0; }
+        }
+
+        h1 {
+            font-size: 2.3rem; font-weight: 700; margin: 40px 20px 35px; text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 50%, #67e8f9 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-shadow: 0 4px 30px rgba(14, 165, 233, 0.3);
+            position: relative; z-index: 2; letter-spacing: -0.5px;
+        }
+        h1::after {
+            content: ""; position: absolute; bottom: -12px; left: 50%;
+            transform: translateX(-50%); width: 80px; height: 3px;
+            background: linear-gradient(90deg, #0ea5e9, #22d3ee); border-radius: 2px;
+        }
+
+        .btn-group {
+            display: flex; flex-direction: column; gap: 18px; width: 100%;
+            max-width: 320px; padding: 0 20px; z-index: 2;
+        }
+
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 16px 24px; border-radius: 14px; text-decoration: none;
+            font-weight: 600; font-size: 1.05rem; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+        }
+        .btn::before {
+            content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease; z-index: -1;
+        }
+        .btn:hover::before { left: 100%; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+            color: #fff; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(96, 165, 250, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(192, 38, 124, 0.12));
+            color: #fff; box-shadow: 0 4px 20px rgba(236, 72, 153, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(236, 72, 153, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border-color: rgba(249, 168, 212, 0.5);
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(124, 58, 237, 0.15));
+            color: #fff; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .btn-admin:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(196, 181, 253, 0.6);
+        }
+
+        .btn-icon { font-size: 1.2rem; transition: transform 0.3s ease; }
+        .btn:hover .btn-icon { transform: scale(1.15); }
+
+        .security-footer {
+            margin-top: 45px; padding: 12px 25px; background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 50px;
+            font-size: 0.85rem; color: #94a3b8; display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(10px); z-index: 2;
+        }
+        .shield-icon { font-size: 1.1rem; color: #60a5fa; }
+
+        .particle {
+            position: absolute; width: 4px; height: 4px; background: rgba(14, 165, 233, 0.6);
+            border-radius: 50%; animation: float 15s infinite linear; z-index: 0; pointer-events: none;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.9rem; margin: 30px 15px 25px; }
+            .btn { padding: 14px 20px; font-size: 1rem; }
+            .security-badge { top: 15px; right: 15px; font-size: 0.8rem; padding: 6px 12px; }
+            .security-footer { margin-top: 35px; font-size: 0.8rem; padding: 10px 20px; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+
+        /* Custom cursor */
+        body {
+            cursor: url("image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%230ea5e9' d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z'/></svg>") 12 12, auto;
+        }
+        a:hover, button:hover, input:hover {
+            cursor: url("image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='%2322d3ee' d='M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z'/></svg>") 12 12, pointer;
+        }
+
+        @keyframes sparkleAnim {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+        .sparkle {
+            position: fixed; pointer-events: none; width: 8px; height: 8px;
+            background: radial-gradient(circle, #fff, #0ea5e9, transparent 70%);
+            border-radius: 50%; transform: translate(-50%, -50%) scale(0);
+            animation: sparkleAnim 0.6s ease-out forwards; z-index: 9999;
+            box-shadow: 0 0 10px #0ea5e9, 0 0 20px rgba(14, 165, 233, 0.5);
+        }
+
+        /* 🔹 CHATBOT STYLES - Matching Theme */
+        #chatbot-button {
+            position: fixed; bottom: 25px; right: 25px;
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+            color: #fff; border: none; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4), 0 0 0 4px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000; animation: bounce 2s ease infinite;
+        }
+        #chatbot-button:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.6), 0 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+        #chatbot-button:active { transform: scale(0.95); }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        #chatbox {
+            position: fixed; bottom: 100px; right: 25px;
+            width: 360px; height: 480px; max-height: 550px;
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+            border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 20px;
+            display: none; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px); z-index: 999;
+            animation: slideIn 0.3s ease;
+        }
+        #chatbox.active { display: flex; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        #chat-header {
+            padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #chat-header span:first-child {
+            font-weight: 600; color: #fff; font-size: 1rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #chat-header span:first-child::before { content: "🤖"; font-size: 1.2rem; }
+        #chat-header span:last-child {
+            font-size: 1.2rem; color: #94a3b8; cursor: pointer;
+            transition: color 0.2s; padding: 4px 8px; border-radius: 8px;
+        }
+        #chat-header span:last-child:hover { color: #f87171; background: rgba(239, 68, 68, 0.1); }
+
+        #chat-messages {
+            flex: 1; padding: 15px 18px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        #chat-messages::-webkit-scrollbar { width: 6px; }
+        #chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #chat-messages::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 3px; }
+
+        .message-user, .message-bot {
+            max-width: 85%; padding: 10px 14px; border-radius: 16px;
+            font-size: 0.9rem; line-height: 1.5; animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .message-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.2));
+            border: 1px solid rgba(96, 165, 250, 0.4);
+            color: #fff; border-bottom-right-radius: 4px;
+        }
+
+        .message-bot {
+            align-self: flex-start;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: #cbd5e1; border-bottom-left-radius: 4px;
+        }
+
+        #chat-input {
+            padding: 12px 15px; background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid rgba(148, 163, 184, 0.2); display: flex; gap: 10px;
+        }
+        #chat-input input {
+            flex: 1; padding: 12px 16px; border-radius: 25px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(30, 41, 59, 0.8); color: #fff;
+            font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+        }
+        #chat-input input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2); }
+        #chat-input input::placeholder { color: #64748b; }
+        #chat-input button {
+            padding: 12px 18px; border-radius: 25px; border: none;
+            background: linear-gradient(135deg, #3b82f6, #0ea5e9); color: #fff;
+            font-size: 1rem; cursor: pointer; transition: all 0.2s;
+            font-weight: 500;
+        }
+        #chat-input button:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4); }
+        #chat-input button:active { transform: scale(0.95); }
+
+        @media (max-width: 480px) {
+            #chatbox { width: calc(100% - 30px); right: 15px; bottom: 90px; height: 450px; }
+            #chatbot-button { bottom: 15px; right: 15px; width: 55px; height: 55px; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Decorative secure elements -->
     <div class="security-badge">
         <span class="lock-icon">🔒</span> End-to-End Encrypted
     </div>
@@ -16,20 +291,33 @@
     <h1>Welcome to Face Recognition Bank</h1>
     
     <div class="btn-group">
-
         <a href="/register" class="btn btn-primary">
             <span class="btn-icon">👤</span> Register
         </a>
-
         <a href="/login" class="btn btn-secondary">
             <span class="btn-icon">🔐</span> Login
         </a>
-
-        <!-- NEW ADMIN BUTTON -->
         <a href="/admin_login" class="btn btn-admin">
             <span class="btn-icon">🛠️</span> Admin Login
         </a>
+    </div>
 
+    <!-- CHATBOT BUTTON -->
+    <div id="chatbot-button" onclick="toggleChat()">💬</div>
+
+    <!-- CHATBOX -->
+    <div id="chatbox">
+        <div id="chat-header">
+            <span>Face Bank Assistant</span>
+            <span onclick="toggleChat()">✖</span>
+        </div>
+        <div id="chat-messages">
+            <div class="message-bot">Hello 👋<br>How can I help you?</div>
+        </div>
+        <div id="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
     <div class="security-footer">
@@ -37,7 +325,7 @@
     </div>
 
     <script>
-        // Floating particles animation
+        // Floating particles
         document.addEventListener('DOMContentLoaded', () => {
             const body = document.body;
             for (let i = 0; i < 12; i++) {
@@ -49,7 +337,75 @@
                 body.appendChild(particle);
             }
         });
-    </script>
 
+        // Sparkle effect
+        document.addEventListener('DOMContentLoaded', () => {
+            const interactive = document.querySelectorAll('a, button, input');
+            interactive.forEach(el => {
+                el.addEventListener('mousemove', (e) => {
+                    if (Math.random() > 0.85) createSparkle(e.pageX, e.pageY);
+                });
+            });
+        });
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = x + 'px'; sparkle.style.top = y + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 600);
+        }
+
+        // 🔹 YOUR CHATBOT LOGIC (UNCHANGED)
+        function toggleChat(){
+            let box = document.getElementById("chatbox");
+            if(box.style.display === "none" || box.style.display === ""){
+                box.style.display = "flex";
+                box.classList.add('active');
+            } else {
+                box.style.display = "none";
+                box.classList.remove('active');
+            }
+        }
+
+        function escapeHtml(text){
+            const div = document.createElement("div");
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        function getCurrentTime(){
+            const now = new Date();
+            return now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        }
+
+        async function sendMessage(){
+            const input = document.getElementById("user-input");
+            const message = input.value.trim();
+            if(message === "") return;
+
+            const chat = document.getElementById("chat-messages");
+            chat.innerHTML += `<div class="message-user">${escapeHtml(message)}</div>`;
+            input.value = "";
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+                chat.innerHTML += `<div class="message-bot">${data.reply}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            } catch(error) {
+                chat.innerHTML += `<div class="message-bot">⚠️ AI server error</div>`;
+            }
+        }
+
+        // Enter key support
+        document.getElementById("user-input").addEventListener("keypress", function(e){
+            if(e.key === "Enter"){ sendMessage(); }
+        });
+    </script>
 </body>
 </html>

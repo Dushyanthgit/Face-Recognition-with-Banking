@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Bank</title>
+</head>
+<body>
+    <h1>Welcome to Face Recognition Bank</h1>
+    <a href="/register">Register</a>
+    <br><br>
+    <a href="/login">Login</a>
+</body>
+</html>	
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form method="POST">
+        Email: <input type="email" name="email" required><br><br>
+        <button type="submit">Login with Face</button>
+    </form>
+</body>
+</html>
+login.html
+
+home.hml
+
+
+from flask import Flask, render_template, request, redirect, session
+from flask_mysqldb import MySQL
+import face_recognition
+import numpy as np
+import cv2
+import os
+import pickle
+
+app = Flask(__name__)
+app.secret_key = "supersecret"
+
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Dushyanth789'
+app.config['MYSQL_DB'] = 'facebanksystem'
+
+mysql = MySQL(app)
+
+DATASET_PATH = "dataset"
+
+if not os.path.exists(DATASET_PATH):
+    os.makedirs(DATASET_PATH)
+
+# ---------------- HOME ----------------
+@app.route('/')
+def home():
+    return render_template("home.html")
+
+# ---------------- REGISTER ----------------
+@app.route('/register', methods=['GET','POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+
+        video = cv2.VideoCapture(0)
+        print("Look at camera...")
+
+        while True:
+            ret, frame = video.read()
+            cv2.imshow("Register - Press S to capture", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('s'):
+                break
+
+        video.release()
+        cv2.destroyAllWindows()
+
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        encodings = face_recognition.face_encodings(rgb)
+
+        if len(encodings) == 0:
+            return "Face not detected. Try again."
+
+        encoding = encodings[0]
+        encoding_pickle = pickle.dumps(encoding)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("INSERT INTO users (name,email,face_encoding) VALUES (%s,%s,%s)",
+                       (name,email,encoding_pickle))
+        mysql.connection.commit()
+
+        return redirect('/login')
+
+    return render_template("register.html")
+
+# ---------------- LOGIN ----------------
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT id,name,face_encoding FROM users WHERE email=%s",(email,))
+        user = cursor.fetchone()
+
+        if user is None:
+            return "User not found"
+
+        user_id = user[0]
+        name = user[1]
+        stored_encoding = pickle.loads(user[2])
+
+        video = cv2.VideoCapture(0)
+        print("Look at camera...")
+
+        while True:
+            ret, frame = video.read()
+            cv2.imshow("Login - Press S to capture", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('s'):
+                break
+
+        video.release()
+        cv2.destroyAllWindows()
+
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        encodings = face_recognition.face_encodings(rgb)
+
+        if len(encodings) == 0:
+            return "Face not detected"
+
+        login_encoding = encodings[0]
+
+        match = face_recognition.compare_faces([stored_encoding], login_encoding)
+
+        if match[0]:
+            session['user_id'] = user_id
+            session['name'] = name
+            return redirect('/dashboard')
+        else:
+            return "Face not matched"
+
+    return render_template("login.html")
+
+# ---------------- DASHBOARD ----------------
+@app.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT balance FROM users WHERE id=%s",(session['user_id'],))
+    balance = cursor.fetchone()[0]
+
+    return render_template("dashboard.html",
+                           name=session['name'],
+                           balance=balance)
+
+# ---------------- TRANSACTION ----------------
+@app.route('/transaction', methods=['POST'])
+def transaction():
+    amount = float(request.form['amount'])
+    type = request.form['type']
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT balance FROM users WHERE id=%s",(session['user_id'],))
+    balance = cursor.fetchone()[0]
+
+    if type == "credit":
+        balance += amount
+        cursor.execute("INSERT INTO transactions (user_id,credit,balance) VALUES (%s,%s,%s)",
+                       (session['user_id'],amount,balance))
+    else:
+        if amount > balance:
+            return "Insufficient Balance"
+        balance -= amount
+        cursor.execute("INSERT INTO transactions (user_id,debit,balance) VALUES (%s,%s,%s)",
+                       (session['user_id'],amount,balance))
+
+    cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
+                   (balance,session['user_id']))
+    mysql.connection.commit()
+
+    return redirect('/dashboard')
+
+# ---------------- LOGOUT ----------------
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/')
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+================================================================
+updated python for app.py
+
+from flask import Flask, render_template, request, redirect, session
+from flask_mysqldb import MySQL
+import face_recognition
+import numpy as np
+import cv2
+import os
+import pickle
+import random
+
+app = Flask(__name__)
+app.secret_key = "supersecret"
+
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Dushyanth789'
+app.config['MYSQL_DB'] = 'facebanksystem'
+
+mysql = MySQL(app)
+
+DATASET_PATH = "dataset"
+
+if not os.path.exists(DATASET_PATH):
+    os.makedirs(DATASET_PATH)
+
+# ---------------- ACCOUNT NUMBER GENERATOR ----------------
+def generate_account_number(phone):
+    while True:
+        suffix = str(random.randint(100, 999))
+        acc_no = phone + suffix   # 10 digit phone + 3 digit suffix = 13
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT id FROM users WHERE account_number=%s", (acc_no,))
+        existing = cursor.fetchone()
+        if not existing:
+            return acc_no
+
+# ---------------- HOME ----------------
+@app.route('/')
+def home():
+    return render_template("home.html")
+
+# ---------------- REGISTER ----------------
+@app.route('/register', methods=['GET','POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+
+        video = cv2.VideoCapture(0)
+        print("Look at camera...")
+
+        while True:
+            ret, frame = video.read()
+            cv2.imshow("Register - Press S to capture", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('s'):
+                break
+
+        video.release()
+        cv2.destroyAllWindows()
+
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        encodings = face_recognition.face_encodings(rgb)
+
+        if len(encodings) == 0:
+            return "Face not detected. Try again."
+
+        encoding = encodings[0]
+        encoding_pickle = pickle.dumps(encoding)
+
+        account_number = generate_account_number(phone)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            INSERT INTO users 
+            (name,email,phone_number,account_number,balance,face_encoding) 
+            VALUES (%s,%s,%s,%s,%s,%s)
+        """,(name,email,phone,account_number,100000,encoding_pickle))
+        mysql.connection.commit()
+
+        return redirect('/login')
+
+    return render_template("register.html")
+
+# ---------------- LOGIN ----------------
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT id,name,face_encoding FROM users WHERE email=%s",(email,))
+        user = cursor.fetchone()
+
+        if user is None:
+            return "User not found"
+
+        user_id = user[0]
+        name = user[1]
+        stored_encoding = pickle.loads(user[2])
+
+        video = cv2.VideoCapture(0)
+        print("Look at camera...")
+
+        while True:
+            ret, frame = video.read()
+            cv2.imshow("Login - Press S to capture", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('s'):
+                break
+
+        video.release()
+        cv2.destroyAllWindows()
+
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        encodings = face_recognition.face_encodings(rgb)
+
+        if len(encodings) == 0:
+            return "Face not detected"
+
+        login_encoding = encodings[0]
+        match = face_recognition.compare_faces([stored_encoding], login_encoding)
+
+        if match[0]:
+            session['user_id'] = user_id
+            session['name'] = name
+            return redirect('/dashboard')
+        else:
+            return "Face not matched"
+
+    return render_template("login.html")
+
+# ---------------- DASHBOARD ----------------
+@app.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT balance,account_number FROM users WHERE id=%s",(session['user_id'],))
+    data = cursor.fetchone()
+
+    balance = data[0]
+    account_number = data[1]
+
+    return render_template("dashboard.html",
+                           name=session['name'],
+                           balance=balance,
+                           account_number=account_number)
+
+# ---------------- SEARCH ACCOUNT ----------------
+@app.route('/search', methods=['POST'])
+def search():
+    search_value = request.form['search']
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT id,name,account_number 
+        FROM users 
+        WHERE phone_number=%s OR account_number=%s
+    """,(search_value,search_value))
+
+    user = cursor.fetchone()
+
+    if not user:
+        return "User not found"
+
+    return render_template("dashboard.html",
+                           name=session['name'],
+                           search_result=user)
+
+# ---------------- TRANSFER MONEY (ACID SAFE) ----------------
+@app.route('/transaction', methods=['POST'])
+def transaction():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    receiver_acc = request.form['receiver_account']
+    amount = float(request.form['amount'])
+
+    cursor = mysql.connection.cursor()
+
+    try:
+        mysql.connection.begin()
+
+        # Lock sender
+        cursor.execute("SELECT id,balance FROM users WHERE id=%s FOR UPDATE",(session['user_id'],))
+        sender = cursor.fetchone()
+
+        # Lock receiver
+        cursor.execute("SELECT id,balance FROM users WHERE account_number=%s FOR UPDATE",(receiver_acc,))
+        receiver = cursor.fetchone()
+
+        if not receiver:
+            mysql.connection.rollback()
+            return "Receiver not found"
+
+        sender_id, sender_balance = sender
+        receiver_id, receiver_balance = receiver
+
+        if amount > sender_balance:
+            mysql.connection.rollback()
+            return "Insufficient Balance"
+
+        new_sender_balance = sender_balance - amount
+        new_receiver_balance = receiver_balance + amount
+
+        # Update balances
+        cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
+                       (new_sender_balance, sender_id))
+        cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
+                       (new_receiver_balance, receiver_id))
+
+        # Insert transaction records
+        cursor.execute("""
+            INSERT INTO transactions 
+            (sender_id,receiver_id,amount,type,balance_after) 
+            VALUES (%s,%s,%s,%s,%s)
+        """,(sender_id,receiver_id,amount,"debit",new_sender_balance))
+
+        cursor.execute("""
+            INSERT INTO transactions 
+            (sender_id,receiver_id,amount,type,balance_after) 
+            VALUES (%s,%s,%s,%s,%s)
+        """,(sender_id,receiver_id,amount,"credit",new_receiver_balance))
+
+        mysql.connection.commit()
+
+    except Exception as e:
+        mysql.connection.rollback()
+        return str(e)
+
+    return redirect('/dashboard')
+
+# ---------------- LOGOUT ----------------
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/')
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f4f6f9;
+            padding: 40px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #eee;
+        }
+        .logout {
+            text-decoration: none;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Welcome {{ name }}</h2>
+    <p><strong>Account Number:</strong> {{ account_number }}</p>
+    <p><strong>Balance:</strong> ₹ {{ balance }}</p>
+</div>
+
+<div class="card">
+    <h3>Search Account</h3>
+    <form method="POST" action="/search">
+        <input type="text" name="search" placeholder="Enter Phone or Account Number" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if search_result %}
+        <p>
+            <strong>Name:</strong> {{ search_result[1] }} <br>
+            <strong>Account No:</strong> {{ search_result[2] }}
+        </p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Transfer Money</h3>
+    <form method="POST" action="/transaction">
+        <input type="text" name="receiver_account" placeholder="Receiver Account Number" required><br>
+        <input type="number" name="amount" placeholder="Amount" required><br>
+        <button type="submit">Transfer</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Transaction History</h3>
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Balance After</th>
+            <th>Date & Time</th>
+        </tr>
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t[0] }}</td>
+            <td>{{ t[1] }}</td>
+            <td>{{ t[2] }}</td>
+            <td>{{ t[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<a class="logout" href="/logout">Logout</a>
+
+</body>
+</html>
+dashboard.html
+
+
+

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 from flask_mysqldb import MySQL
 import face_recognition
 import numpy as np
@@ -7,7 +7,42 @@ import os
 import pickle
 import random
 
+import google.generativeai as genai
+
+
 app = Flask(__name__)
+
+genai.configure(api_key="AIzaSyAh8zCJamRexFoE4DVarrD-NQ-aFe_80L8")
+
+model = genai.GenerativeModel("models/gemini-2.5-flash")
+
+@app.route("/chat", methods=["POST"])
+def chat():
+
+    user_message = request.json.get("message")
+
+    with open("allrecordsforbanksystem.txt","r",encoding="utf-8") as f:
+        BANK_DATA = f.read()
+
+    prompt = f"""
+You are the AI assistant for Face Bank.
+
+Bank Data:
+{BANK_DATA}
+
+User Question:
+{user_message}
+"""
+
+    try:
+        response = model.generate_content(prompt)
+        reply = response.text
+    except Exception as e:
+        print("Gemini error:", e)
+        reply = "AI error: " + str(e)
+
+    return jsonify({"reply": reply})
+
 app.secret_key = "supersecret"
 
 app.config['MYSQL_HOST'] = 'localhost'

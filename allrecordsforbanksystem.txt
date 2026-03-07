@@ -1,545 +1,619 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Face Bank</title>
-</head>
-<body>
-    <h1>Welcome to Face Recognition Bank</h1>
-    <a href="/register">Register</a>
-    <br><br>
-    <a href="/login">Login</a>
-</body>
-</html>	
-
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
-    <form method="POST">
-        Email: <input type="email" name="email" required><br><br>
-        <button type="submit">Login with Face</button>
-    </form>
-</body>
-</html>
-login.html
-
-home.hml
-
-
-from flask import Flask, render_template, request, redirect, session
-from flask_mysqldb import MySQL
-import face_recognition
-import numpy as np
-import cv2
-import os
-import pickle
+You are the AI assistant for Face Bank.
 
-app = Flask(__name__)
-app.secret_key = "supersecret"
-
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Dushyanth789'
-app.config['MYSQL_DB'] = 'facebanksystem'
+Only answer questions related to banking, accounts, loans, security, or Face Bank services.
 
-mysql = MySQL(app)
-
-DATASET_PATH = "dataset"
-
-if not os.path.exists(DATASET_PATH):
-    os.makedirs(DATASET_PATH)
-
-# ---------------- HOME ----------------
-@app.route('/')
-def home():
-    return render_template("home.html")
-
-# ---------------- REGISTER ----------------
-@app.route('/register', methods=['GET','POST'])
-def register():
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-
-        video = cv2.VideoCapture(0)
-        print("Look at camera...")
-
-        while True:
-            ret, frame = video.read()
-            cv2.imshow("Register - Press S to capture", frame)
-
-            if cv2.waitKey(1) & 0xFF == ord('s'):
-                break
-
-        video.release()
-        cv2.destroyAllWindows()
-
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        encodings = face_recognition.face_encodings(rgb)
-
-        if len(encodings) == 0:
-            return "Face not detected. Try again."
-
-        encoding = encodings[0]
-        encoding_pickle = pickle.dumps(encoding)
-
-        cursor = mysql.connection.cursor()
-        cursor.execute("INSERT INTO users (name,email,face_encoding) VALUES (%s,%s,%s)",
-                       (name,email,encoding_pickle))
-        mysql.connection.commit()
-
-        return redirect('/login')
-
-    return render_template("register.html")
-
-# ---------------- LOGIN ----------------
-@app.route('/login', methods=['GET','POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-
-        cursor = mysql.connection.cursor()
-        cursor.execute("SELECT id,name,face_encoding FROM users WHERE email=%s",(email,))
-        user = cursor.fetchone()
-
-        if user is None:
-            return "User not found"
-
-        user_id = user[0]
-        name = user[1]
-        stored_encoding = pickle.loads(user[2])
-
-        video = cv2.VideoCapture(0)
-        print("Look at camera...")
-
-        while True:
-            ret, frame = video.read()
-            cv2.imshow("Login - Press S to capture", frame)
-
-            if cv2.waitKey(1) & 0xFF == ord('s'):
-                break
+If the user asks unrelated questions, politely say:
+"I am the Face Bank assistant and can only help with banking services."
 
-        video.release()
-        cv2.destroyAllWindows()
-
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        encodings = face_recognition.face_encodings(rgb)
-
-        if len(encodings) == 0:
-            return "Face not detected"
-
-        login_encoding = encodings[0]
-
-        match = face_recognition.compare_faces([stored_encoding], login_encoding)
-
-        if match[0]:
-            session['user_id'] = user_id
-            session['name'] = name
-            return redirect('/dashboard')
-        else:
-            return "Face not matched"
-
-    return render_template("login.html")
-
-# ---------------- DASHBOARD ----------------
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        return redirect('/login')
-
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT balance FROM users WHERE id=%s",(session['user_id'],))
-    balance = cursor.fetchone()[0]
-
-    return render_template("dashboard.html",
-                           name=session['name'],
-                           balance=balance)
-
-# ---------------- TRANSACTION ----------------
-@app.route('/transaction', methods=['POST'])
-def transaction():
-    amount = float(request.form['amount'])
-    type = request.form['type']
-
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT balance FROM users WHERE id=%s",(session['user_id'],))
-    balance = cursor.fetchone()[0]
-
-    if type == "credit":
-        balance += amount
-        cursor.execute("INSERT INTO transactions (user_id,credit,balance) VALUES (%s,%s,%s)",
-                       (session['user_id'],amount,balance))
-    else:
-        if amount > balance:
-            return "Insufficient Balance"
-        balance -= amount
-        cursor.execute("INSERT INTO transactions (user_id,debit,balance) VALUES (%s,%s,%s)",
-                       (session['user_id'],amount,balance))
-
-    cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
-                   (balance,session['user_id']))
-    mysql.connection.commit()
-
-    return redirect('/dashboard')
-
-# ---------------- LOGOUT ----------------
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/')
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-================================================================
-updated python for app.py
-
-from flask import Flask, render_template, request, redirect, session
-from flask_mysqldb import MySQL
-import face_recognition
-import numpy as np
-import cv2
-import os
-import pickle
-import random
-
-app = Flask(__name__)
-app.secret_key = "supersecret"
-
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Dushyanth789'
-app.config['MYSQL_DB'] = 'facebanksystem'
-
-mysql = MySQL(app)
-
-DATASET_PATH = "dataset"
+your using bold letters so when comes to my system it will show ** these not bold letters so dont use bold letters for headings
+Face Bank Information (Knowledge Base)
+About Face Bank
 
-if not os.path.exists(DATASET_PATH):
-    os.makedirs(DATASET_PATH)
+Face Bank is a secure digital banking system that uses facial recognition authentication for login and transactions.
+It allows customers to access their accounts safely without passwords.
 
-# ---------------- ACCOUNT NUMBER GENERATOR ----------------
-def generate_account_number(phone):
-    while True:
-        suffix = str(random.randint(100, 999))
-        acc_no = phone + suffix   # 10 digit phone + 3 digit suffix = 13
-        cursor = mysql.connection.cursor()
-        cursor.execute("SELECT id FROM users WHERE account_number=%s", (acc_no,))
-        existing = cursor.fetchone()
-        if not existing:
-            return acc_no
-
-# ---------------- HOME ----------------
-@app.route('/')
-def home():
-    return render_template("home.html")
-
-# ---------------- REGISTER ----------------
-@app.route('/register', methods=['GET','POST'])
-def register():
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        phone = request.form['phone']
-
-        video = cv2.VideoCapture(0)
-        print("Look at camera...")
-
-        while True:
-            ret, frame = video.read()
-            cv2.imshow("Register - Press S to capture", frame)
-
-            if cv2.waitKey(1) & 0xFF == ord('s'):
-                break
-
-        video.release()
-        cv2.destroyAllWindows()
-
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        encodings = face_recognition.face_encodings(rgb)
-
-        if len(encodings) == 0:
-            return "Face not detected. Try again."
-
-        encoding = encodings[0]
-        encoding_pickle = pickle.dumps(encoding)
-
-        account_number = generate_account_number(phone)
-
-        cursor = mysql.connection.cursor()
-        cursor.execute("""
-            INSERT INTO users 
-            (name,email,phone_number,account_number,balance,face_encoding) 
-            VALUES (%s,%s,%s,%s,%s,%s)
-        """,(name,email,phone,account_number,100000,encoding_pickle))
-        mysql.connection.commit()
-
-        return redirect('/login')
-
-    return render_template("register.html")
-
-# ---------------- LOGIN ----------------
-@app.route('/login', methods=['GET','POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-
-        cursor = mysql.connection.cursor()
-        cursor.execute("SELECT id,name,face_encoding FROM users WHERE email=%s",(email,))
-        user = cursor.fetchone()
-
-        if user is None:
-            return "User not found"
-
-        user_id = user[0]
-        name = user[1]
-        stored_encoding = pickle.loads(user[2])
+Main features:
 
-        video = cv2.VideoCapture(0)
-        print("Look at camera...")
-
-        while True:
-            ret, frame = video.read()
-            cv2.imshow("Login - Press S to capture", frame)
+Face recognition login
 
-            if cv2.waitKey(1) & 0xFF == ord('s'):
-                break
-
-        video.release()
-        cv2.destroyAllWindows()
-
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        encodings = face_recognition.face_encodings(rgb)
-
-        if len(encodings) == 0:
-            return "Face not detected"
-
-        login_encoding = encodings[0]
-        match = face_recognition.compare_faces([stored_encoding], login_encoding)
-
-        if match[0]:
-            session['user_id'] = user_id
-            session['name'] = name
-            return redirect('/dashboard')
-        else:
-            return "Face not matched"
-
-    return render_template("login.html")
-
-# ---------------- DASHBOARD ----------------
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        return redirect('/login')
-
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT balance,account_number FROM users WHERE id=%s",(session['user_id'],))
-    data = cursor.fetchone()
-
-    balance = data[0]
-    account_number = data[1]
-
-    return render_template("dashboard.html",
-                           name=session['name'],
-                           balance=balance,
-                           account_number=account_number)
-
-# ---------------- SEARCH ACCOUNT ----------------
-@app.route('/search', methods=['POST'])
-def search():
-    search_value = request.form['search']
-
-    cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT id,name,account_number 
-        FROM users 
-        WHERE phone_number=%s OR account_number=%s
-    """,(search_value,search_value))
-
-    user = cursor.fetchone()
-
-    if not user:
-        return "User not found"
-
-    return render_template("dashboard.html",
-                           name=session['name'],
-                           search_result=user)
-
-# ---------------- TRANSFER MONEY (ACID SAFE) ----------------
-@app.route('/transaction', methods=['POST'])
-def transaction():
-    if 'user_id' not in session:
-        return redirect('/login')
-
-    receiver_acc = request.form['receiver_account']
-    amount = float(request.form['amount'])
-
-    cursor = mysql.connection.cursor()
-
-    try:
-        mysql.connection.begin()
-
-        # Lock sender
-        cursor.execute("SELECT id,balance FROM users WHERE id=%s FOR UPDATE",(session['user_id'],))
-        sender = cursor.fetchone()
-
-        # Lock receiver
-        cursor.execute("SELECT id,balance FROM users WHERE account_number=%s FOR UPDATE",(receiver_acc,))
-        receiver = cursor.fetchone()
-
-        if not receiver:
-            mysql.connection.rollback()
-            return "Receiver not found"
-
-        sender_id, sender_balance = sender
-        receiver_id, receiver_balance = receiver
-
-        if amount > sender_balance:
-            mysql.connection.rollback()
-            return "Insufficient Balance"
-
-        new_sender_balance = sender_balance - amount
-        new_receiver_balance = receiver_balance + amount
-
-        # Update balances
-        cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
-                       (new_sender_balance, sender_id))
-        cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
-                       (new_receiver_balance, receiver_id))
-
-        # Insert transaction records
-        cursor.execute("""
-            INSERT INTO transactions 
-            (sender_id,receiver_id,amount,type,balance_after) 
-            VALUES (%s,%s,%s,%s,%s)
-        """,(sender_id,receiver_id,amount,"debit",new_sender_balance))
-
-        cursor.execute("""
-            INSERT INTO transactions 
-            (sender_id,receiver_id,amount,type,balance_after) 
-            VALUES (%s,%s,%s,%s,%s)
-        """,(sender_id,receiver_id,amount,"credit",new_receiver_balance))
-
-        mysql.connection.commit()
-
-    except Exception as e:
-        mysql.connection.rollback()
-        return str(e)
-
-    return redirect('/dashboard')
-
-# ---------------- LOGOUT ----------------
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/')
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-    <style>
-        body {
-            font-family: Arial;
-            background-color: #f4f6f9;
-            padding: 40px;
-        }
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-        }
-        input, button {
-            padding: 8px;
-            margin: 5px 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
-        th {
-            background-color: #eee;
-        }
-        .logout {
-            text-decoration: none;
-            color: red;
-            font-weight: bold;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="card">
-    <h2>Welcome {{ name }}</h2>
-    <p><strong>Account Number:</strong> {{ account_number }}</p>
-    <p><strong>Balance:</strong> ₹ {{ balance }}</p>
-</div>
-
-<div class="card">
-    <h3>Search Account</h3>
-    <form method="POST" action="/search">
-        <input type="text" name="search" placeholder="Enter Phone or Account Number" required>
-        <button type="submit">Search</button>
-    </form>
-
-    {% if search_result %}
-        <p>
-            <strong>Name:</strong> {{ search_result[1] }} <br>
-            <strong>Account No:</strong> {{ search_result[2] }}
-        </p>
-    {% endif %}
-</div>
-
-<div class="card">
-    <h3>Transfer Money</h3>
-    <form method="POST" action="/transaction">
-        <input type="text" name="receiver_account" placeholder="Receiver Account Number" required><br>
-        <input type="number" name="amount" placeholder="Amount" required><br>
-        <button type="submit">Transfer</button>
-    </form>
-</div>
-
-<div class="card">
-    <h3>Transaction History</h3>
-    <table>
-        <tr>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Balance After</th>
-            <th>Date & Time</th>
-        </tr>
-        {% for t in transactions %}
-        <tr>
-            <td>{{ t[0] }}</td>
-            <td>{{ t[1] }}</td>
-            <td>{{ t[2] }}</td>
-            <td>{{ t[3] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-<a class="logout" href="/logout">Logout</a>
-
-</body>
-</html>
-dashboard.html
+Secure digital banking
 
+Account management
 
+Loan services
 
+Online transactions
+
+AI banking assistant
+
+Account Opening
+How to open a new account?
+
+To open an account in Face Bank:
+
+Click Register
+
+Enter your personal details
+
+Capture your face image for biometric authentication
+
+Submit your information
+
+After verification your account will be created
+
+What documents are required to open an account?
+
+Required documents:
+
+Aadhaar Card
+
+PAN Card
+
+Mobile number
+
+Email address
+
+Face biometric registration
+
+Is there any minimum balance?
+
+Savings account minimum balance:
+
+₹1000 for standard account
+
+₹0 for digital basic account
+
+Login
+How do I login to my account?
+
+Click Login
+
+Look at the camera
+
+The system verifies your face
+
+If the face matches, you will be logged in.
+
+What if face recognition fails?
+
+If face recognition fails:
+
+Ensure good lighting
+
+Look directly at the camera
+
+Remove glasses or mask if necessary
+
+Try again
+
+If the problem continues contact support.
+
+Transactions
+How can I transfer money?
+
+Steps:
+
+Login to your account
+
+Select Transfer Money
+
+Enter receiver account number
+
+Enter amount
+
+Confirm transaction
+
+Is online transfer secure?
+
+Yes. Face Bank uses:
+
+Face recognition authentication
+
+Encrypted transactions
+
+Secure banking servers
+
+Loans
+How to apply for a loan?
+
+Steps to apply:
+
+Login to your Face Bank account
+
+Go to Loan Services
+
+Select loan type
+
+Fill loan application form
+
+Upload required documents
+
+Submit application
+
+The bank will review and approve the loan.
+
+Types of loans available
+
+Face Bank offers:
+
+Personal Loan
+
+Home Loan
+
+Education Loan
+
+Business Loan
+
+Vehicle Loan
+
+Personal Loan Details
+
+Maximum amount: ₹10,00,000
+Interest rate: 10% – 14%
+Tenure: 1 – 5 years
+
+Requirements:
+
+Valid ID proof
+
+Income proof
+
+Bank account history
+
+Home Loan Details
+
+Maximum amount: ₹1 Crore
+Interest rate: 7% – 9%
+Tenure: Up to 20 years
+
+Requirements:
+
+Property documents
+
+Income proof
+
+Credit score check
+
+Education Loan Details
+
+Maximum amount: ₹20 Lakhs
+Interest rate: 6% – 10%
+
+Requirements:
+
+Admission proof
+
+Student ID
+
+Parent/guardian details
+
+ATM Services
+Can I withdraw money from ATM?
+
+Yes. Face Bank supports ATM withdrawals using:
+
+ATM card
+
+PIN authentication
+
+What if my ATM card is lost?
+
+Immediately contact customer support or block the card from your account dashboard.
+
+Security
+
+Face Bank provides advanced security:
+
+Face recognition login
+
+Encrypted data
+
+Secure authentication
+
+Fraud detection monitoring
+
+Customer Support
+
+If you need help contact:
+
+Email: support@facebank.com
+
+Phone: +91 9876543210
+
+Working hours:
+Monday – Saturday
+9:00 AM – 6:00 PM
+
+Common Questions
+What if I forget my password?
+
+You can reset your password from the Forgot Password option.
+
+Can I change my registered face?
+
+Yes. You can update face data from Profile Settings.
+
+Is Face Bank safe?
+
+Yes. Face Bank uses advanced biometric authentication and encryption to protect user accounts.
+
+Face Bank Information
+
+Face Bank is a digital banking platform with facial recognition login.
+
+Services:
+- Account management
+- Secure login using face recognition
+- Money transfer
+- Transaction history
+
+Loans:
+- Personal Loan
+- Education Loan
+- Home Loan
+- Business Loan
+
+Schemes:
+- Senior Citizen Savings Scheme
+- Student Savings Account
+- Fixed Deposit Plans
+
+Founders:
+Dushyanth N G
+Aravind M M G
+
+Face Bank Services:
+
+Savings Account:
+Minimum balance 1000 rupees.
+
+Current Account:
+Used for businesses with unlimited transactions.
+
+Loans:
+Personal loan, home loan, education loan available.
+
+ATM services:
+Withdraw money from ATM using debit card.
+
+Net Banking:
+Customers can transfer money online securely.
+
+
+⚙️
+Services
+ℹ️
+About Us
+💰
+Loan
+🎁
+Schemes
+© 2024 Face Bank
+
+Developed by Dushyanth N G
+
+🔒
+End-to-End Encrypted
+Our Services
+Face Bank provides secure, modern banking powered by biometric authentication. Manage accounts, transfer money, and access banking services quickly and safely using facial recognition technology.
+
+🔐
+Secure Face Recognition Login
+Face Bank uses advanced facial recognition technology to authenticate users. Instead of traditional passwords, customers can log in using their registered facial profile — significantly improving security and eliminating password theft risks.
+
+Biometric authentication for instant login
+Prevents unauthorized access & phishing
+Fast and convenient verification
+Secure identity validation with liveness detection
+💸
+Instant Money Transfer
+Users can securely transfer funds to other accounts within the system. The transfer process verifies account details and ensures transactions are recorded accurately for both sender and receiver.
+
+Transfer money using account number
+Instant debit and credit updates
+Real-time balance synchronization
+Secure transaction logging with receipts
+🔍
+Account Search
+The system allows users to search for accounts using phone numbers or account numbers. This feature helps users verify recipient information before making transactions.
+
+Search by phone number or account number
+View verified account holder name
+Prevent incorrect transfers with confirmation
+Privacy-protected search results
+📊
+Transaction History
+Customers can track all their financial activity through a detailed transaction history panel. Each transaction record includes the type, amount, remaining balance, and date/time.
+
+Complete transaction records with filters
+Color-coded debit and credit indicators
+Running balance tracking
+Export history as PDF/CSV
+👤
+Account Management
+Face Bank allows customers to manage their account details and monitor their balance in real time. This ensures transparency and easy financial management.
+
+View and copy account number instantly
+Check available balance with animations
+Secure account information display
+One-click copy to clipboard
+🛡️
+Security Features
+Security is the core of Face Bank. Multiple security mechanisms ensure that customer data and financial transactions remain protected at all times.
+
+Facial biometric authentication
+256-bit SSL encrypted communication
+Secure database with encryption at rest
+Protected user sessions with auto-logout
+Two-factor transaction verification
+✨
+Benefits of Using Face Bank
+Experience the future of banking with features designed for security, speed, and simplicity.
+
+No need to remember complex passwords
+Faster login with face recognition
+Improved banking security & fraud prevention
+Easy transaction management dashboard
+Modern, intuitive digital banking experience
+🚀
+Future Enhancements
+Face Bank is designed to evolve with modern banking technologies. Future updates may include:
+
+AI-based fraud detection & alerts
+Smart spending analytics & insights
+Loan management & EMI calculator
+Mobile banking app integration
+Multi-currency support & international transfers
+
+
+Face Bank
+🏠
+Home
+⚙️
+Services
+ℹ️
+About Us
+💰
+Loan
+🎁
+Schemes
+© 2024 Face Bank
+
+Developed by Dushyanth N G
+
+🔒
+End-to-End Encrypted
+About Face Bank
+A secure digital banking system demonstrating modern online banking features combined with facial recognition authentication.
+
+🏦
+Who We Are
+Face Bank is a secure digital banking system developed to demonstrate modern online banking features combined with facial recognition authentication. The system allows users to manage their accounts, perform transactions, and access banking services in a secure and efficient way.
+
+This project focuses on improving banking security by integrating facial recognition technology with traditional banking operations such as account management, money transfers, transaction tracking, and administrative monitoring.
+
+⚡
+Project Features
+Our banking system comes packed with modern features designed for security, convenience, and efficiency.
+
+User account registration and secure login system
+Facial recognition authentication for enhanced security
+Instant money transfer between users
+Complete transaction history tracking
+Admin dashboard for monitoring users and transactions
+Information pages for banking services, schemes, and loans
+🛠️
+Technology Used
+Built with cutting-edge technologies to ensure performance, security, and scalability.
+
+🐍
+Python Flask
+🗄️
+MySQL
+🌐
+HTML5
+🎨
+CSS3
+📸
+Face Recognition
+🔧
+Git & GitHub
+👥
+Development Team
+This project was developed by our talented team who collaborated in designing the banking system, implementing backend logic, integrating facial recognition authentication, and building the user interface.
+
+👨‍💻
+Dushyanth N G
+Lead Developer
+👨‍💻
+Aravind M M G
+Co-Developer
+🎯
+Project Objective
+The main objective of Face Bank is to demonstrate how modern technologies such as biometric authentication can be integrated into digital banking systems to improve security, reliability, and user experience.
+
+Enhance banking security with biometric authentication
+Provide seamless digital banking experience
+Demonstrate practical implementation of face recognition
+Create a scalable and maintainable banking system
+
+
+
+🏦
+Face Bank
+🏠
+Home
+⚙️
+Services
+ℹ️
+About Us
+💰
+Loan
+🎁
+Schemes
+© 2024 Face Bank
+
+Developed by Dushyanth N G
+
+🔒
+End-to-End Encrypted
+Loan Services
+Face Bank offers a variety of loan services to support your personal, educational, housing, and business goals with flexible repayment options and competitive interest rates.
+
+👤
+Personal Loan
+Quick Approval
+Personal loans are designed to help customers manage unexpected financial needs such as medical expenses, travel costs, home renovations, or other personal requirements. No collateral required.
+
+📊 Starting from 10.5% p.a.
+✨ Key Features
+Quick approval and fast disbursement within 24-48 hours
+No collateral or security required
+Flexible repayment tenure from 1 to 5 years
+Simple documentation process with minimal paperwork
+📋 Eligibility
+Minimum age: 21 years
+Stable source of income with proof
+Valid identification and active bank account
+📝 Apply Now
+🎓
+Education Loan
+Education loans are provided to support students who wish to pursue higher education in universities or colleges. Covers tuition fees, accommodation, books, and other academic costs.
+
+📊 Starting from 8.5% p.a.
+✨ Key Features
+Covers tuition fees and all study-related expenses
+Flexible repayment after course completion (moratorium period)
+Affordable interest rates specially for students
+Support for both domestic and international education
+🎁 Benefits
+Financial support for higher education dreams
+Lower interest rates compared to personal loans
+Long repayment tenure up to 15 years
+📝 Apply Now
+🏠
+Home Loan
+Home loans help customers purchase, build, or renovate a house. Face Bank offers competitive interest rates and long repayment periods to make home ownership easier and more affordable.
+
+📊 Starting from 8.25% p.a.
+✨ Key Features
+High loan amount availability up to 90% of property value
+Long repayment tenure up to 30 years
+Competitive interest rates with special offers
+Option for early repayment without penalties
+✅ Advantages
+Affordable monthly installments (EMI)
+Flexible repayment structure with step-up options
+Support for buying, building, or renovating homes
+📝 Apply Now
+💼
+Business Loan
+For Entrepreneurs
+Business loans are designed for entrepreneurs and small business owners who need financial support to expand operations, purchase equipment, or manage business growth.
+
+📊 Starting from 11% p.a.
+✨ Key Features
+Funding for business expansion and working capital
+Flexible loan amounts from ₹50,000 to ₹50 Lakhs
+Special support for startups and small businesses
+Easy digital loan application process
+🎁 Benefits
+Helps grow business operations rapidly
+Improves cash flow management
+Flexible repayment terms based on business cycle
+📝 Apply Now
+⭐
+Why Choose Face Bank Loans?
+Experience hassle-free loan processing with transparent policies and customer-friendly repayment options. Our digital-first approach makes borrowing simple and secure.
+
+🔐 Secure digital banking system with encrypted data
+⚡ Fast loan processing with minimal documentation
+📄 Transparent policies with no hidden charges
+💳 Customer friendly repayment options and EMI plans
+📞 24/7 online banking support and assistance
+
+
+
+🏦
+Face Bank
+🏠
+Home
+⚙️
+Services
+ℹ️
+About Us
+💰
+Loan
+🎁
+Schemes
+© 2024 Face Bank
+
+Developed by Dushyanth N G
+
+🔒
+End-to-End Encrypted
+Financial Schemes
+Face Bank offers a variety of financial schemes designed to support students, senior citizens, professionals, and long-term investors. Grow your savings, earn better returns, and enjoy secure digital banking.
+
+👴
+Senior Citizen Savings Scheme
+Popular
+Specially designed for individuals aged 60 years and above. Provides higher interest rates compared to normal savings accounts with safe investment and stable returns.
+
+✨ Key Features
+Higher interest rate than regular savings accounts
+Quarterly interest payout for steady income
+Government supported secure investment
+Flexible deposit options with easy withdrawal
+📋 Eligibility
+Age must be 60 years or above
+Valid government identity proof required
+Minimum deposit amount applicable
+🎓
+Student Savings Account
+Designed for students who want to start learning financial management early. Easy digital banking with minimal charges and basic banking facilities.
+
+✨ Key Features
+Zero or very low minimum balance requirement
+Free debit card specially for students
+Full mobile banking and online banking access
+Special cashback offers on education platforms
+🎁 Benefits
+Encourages early financial discipline
+Safe and secure digital transactions
+Exclusive student discounts and offers
+📈
+Fixed Deposit Plans
+Invest money for a fixed period and earn guaranteed interest. Ideal for customers looking for stable and predictable returns with zero market risk.
+
+📅 Plan Options
+Short Term FD: 6 months – 1 year
+Medium Term FD: 1 – 3 years
+Long Term FD: 3 – 10 years
+✅ Advantages
+Guaranteed interest returns with no risk
+Flexible tenure options to suit your goals
+Loan facility available against your FD
+Automatic renewal option for hassle-free banking
+🎯
+Digital Banking Rewards Program
+Earn reward points for using secure digital banking services. Get cashback, vouchers, and exclusive discounts for every digital transaction you make.
+
+💳 Reward Activities
+Online fund transfers between accounts
+Bill payments through internet banking
+Mobile banking app usage and logins
+UPI and digital wallet payments
+🎁 Rewards You Can Earn
+Instant cashback on eligible transactions
+Reward points redeemable for gift vouchers
+Special partner discounts on shopping & travel
+⭐
+Why Choose Face Bank?
+Experience banking that puts your security and convenience first. Our innovative features and customer-first approach make us the preferred choice for modern banking.
+
+🔐 Secure digital banking with facial recognition
+⚡ 24/7 online banking services anytime, anywhere
+🚀 Fast and reliable instant transactions
+💙 Customer-friendly schemes with transparent terms
+🛡️ Advanced fraud protection and encryption
