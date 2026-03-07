@@ -1,83 +1,580 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About Us - Face Bank</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap");
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Open Sans", sans-serif; }
+body {
+display: flex; min-height: 100vh; position: relative; overflow-x: hidden;
+color: #fff; background: #0a0e17;
+}
+body::before {
+content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: radial-gradient(ellipse at top, rgba(23, 58, 133, 0.4) 0%, transparent 70%),
+radial-gradient(ellipse at bottom, rgba(14, 165, 233, 0.25) 0%, transparent 70%);
+z-index: -2;
+}
+body::after {
+content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+background-size: 40px 40px; animation: gridMove 20s linear infinite;
+z-index: -1; pointer-events: none;
+}
+@keyframes gridMove {
+0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+}
+.menu-toggle {
+position: fixed; top: 25px; left: 25px; z-index: 1001;
+width: 50px; height: 50px;
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.2));
+border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 12px;
+cursor: pointer; display: flex; flex-direction: column;
+align-items: center; justify-content: center; gap: 5px;
+backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.menu-toggle:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(14, 165, 233, 0.5); border-color: rgba(96, 165, 250, 0.7); }
+.menu-toggle:active { transform: scale(0.95); }
+.menu-toggle .bar {
+width: 24px; height: 2.5px; background: linear-gradient(90deg, #60a5fa, #22d3ee);
+border-radius: 3px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
+}
+.menu-toggle.active .bar:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); background: #f87171; }
+.menu-toggle.active .bar:nth-child(2) { opacity: 0; transform: translateX(-10px); }
+.menu-toggle.active .bar:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); background: #f87171; }
+.sidebar {
+position: fixed; top: 0; left: -320px; width: 300px; height: 100vh;
+background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+border-right: 1px solid rgba(148, 163, 184, 0.2); backdrop-filter: blur(20px);
+z-index: 1000; transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; overflow-y: auto;
+}
+.sidebar.active { left: 0; }
+.sidebar-header {
+padding: 25px 25px 20px; border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+display: flex; align-items: center; justify-content: space-between;
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent);
+}
+.sidebar-brand { display: flex; align-items: center; gap: 12px; }
+.sidebar-brand-icon {
+width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+border-radius: 12px; display: flex; align-items: center; justify-content: center;
+font-size: 1.5rem; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.sidebar-brand h2 {
+font-size: 1.5rem; font-weight: 700;
+background: linear-gradient(135deg, #fff 0%, #67e8f9 100%);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-menu { list-style: none; padding: 20px 15px; flex: 1; }
+.nav-item {
+margin-bottom: 8px; opacity: 0; transform: translateX(-20px);
+animation: slideIn 0.4s ease forwards;
+}
+.nav-item:nth-child(1) { animation-delay: 0.1s; }
+.nav-item:nth-child(2) { animation-delay: 0.15s; }
+.nav-item:nth-child(3) { animation-delay: 0.2s; }
+.nav-item:nth-child(4) { animation-delay: 0.25s; }
+.nav-item:nth-child(5) { animation-delay: 0.3s; }
+@keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+.nav-link {
+display: flex; align-items: center; gap: 15px; padding: 16px 20px;
+color: #cbd5e1; text-decoration: none; border-radius: 14px;
+font-weight: 500; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+border: 1px solid transparent; position: relative; overflow: hidden;
+}
+.nav-link::before {
+content: ""; position: absolute; left: 0; top: 0; height: 100%; width: 0;
+background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), transparent);
+transition: width 0.3s ease;
+}
+.nav-link:hover::before, .nav-link.active::before { width: 100%; }
+.nav-link:hover, .nav-link.active {
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+border-color: rgba(96, 165, 250, 0.4); color: #fff;
+transform: translateX(8px); box-shadow: 0 4px 20px rgba(14, 165, 233, 0.25);
+}
+.nav-link span.icon { font-size: 1.4rem; width: 28px; text-align: center; position: relative; z-index: 1; }
+.nav-link span.text { position: relative; z-index: 1; }
+.sidebar-footer {
+padding: 20px 25px; border-top: 1px solid rgba(148, 163, 184, 0.2);
+text-align: center; background: rgba(15, 23, 42, 0.5);
+}
+.sidebar-footer p { color: #64748b; font-size: 0.85rem; margin-bottom: 5px; }
+.sidebar-footer .developer { color: #67e8f9; font-weight: 600; text-decoration: none; transition: color 0.3s; }
+.sidebar-footer .developer:hover { color: #fff; text-decoration: underline; }
+.sidebar-overlay {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+}
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+.main-content {
+flex: 1; margin-left: 0; padding: 30px; display: flex;
+flex-direction: column; min-height: 100vh; transition: margin-left 0.4s ease; width: 100%;
+}
+@media (min-width: 1025px) { .sidebar.active + .main-content { margin-left: 300px; } }
+.security-badge {
+position: fixed; top: 25px; right: 25px; display: flex; align-items: center; gap: 10px;
+padding: 10px 20px; background: rgba(16, 185, 129, 0.15);
+border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 50px;
+font-size: 0.85rem; font-weight: 600; color: #6ee7b7;
+backdrop-filter: blur(10px); animation: pulse 2s ease-in-out infinite;
+z-index: 100; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+@keyframes pulse {
+0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+}
+.scanner-line {
+position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+box-shadow: 0 0 20px #0ea5e9, 0 0 40px #0ea5e9;
+animation: scan 3s ease-in-out infinite; z-index: 50; opacity: 0.9;
+}
+@keyframes scan {
+0%, 100% { top: -10%; opacity: 0; }
+10% { opacity: 0.9; }
+90% { opacity: 0.9; }
+100% { top: 110%; opacity: 0; }
+}
+.dashboard-container { width: 100%; max-width: 900px; margin: 80px auto 40px; padding: 0 10px; flex: 1; }
+.page-header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.page-header h1 {
+font-size: 2.5rem; font-weight: 700;
+background: linear-gradient(135deg, #fff 0%, #a5b4fc 50%, #67e8f9 100%);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+margin-bottom: 10px; position: relative; display: inline-block;
+}
+.page-header h1::after {
+content: ""; position: absolute; bottom: -12px; left: 50%;
+transform: translateX(-50%); width: 80px; height: 3px;
+background: linear-gradient(90deg, #0ea5e9, #22d3ee); border-radius: 2px;
+}
+.page-header p { color: #94a3b8; font-size: 1.1rem; max-width: 700px; margin: 0 auto; line-height: 1.7; }
+.about-card {
+background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.3);
+border-radius: 20px; padding: 30px; margin-bottom: 25px; backdrop-filter: blur(16px);
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+transition: all 0.3s ease; animation: fadeInUp 0.6s ease; animation-fill-mode: both;
+}
+.about-card:nth-child(1) { animation-delay: 0.1s; }
+.about-card:nth-child(2) { animation-delay: 0.15s; }
+.about-card:nth-child(3) { animation-delay: 0.2s; }
+.about-card:nth-child(4) { animation-delay: 0.25s; }
+.about-card:nth-child(5) { animation-delay: 0.3s; }
+.about-card:hover {
+transform: translateY(-4px);
+box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15), 0 0 30px rgba(14, 165, 233, 0.2);
+}
+.about-card h3 {
+color: #fff; margin-bottom: 15px; font-size: 1.4rem; font-weight: 600;
+background: linear-gradient(135deg, #fff 0%, #67e8f9 100%);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+display: flex; align-items: center; gap: 12px;
+}
+.about-card h3 .icon { font-size: 1.6rem; }
+.about-card h4 {
+color: #67e8f9; margin: 20px 0 12px; font-size: 1.1rem; font-weight: 600;
+}
+.about-card p { color: #cbd5e1; margin: 10px 0; font-size: 1rem; line-height: 1.7; }
+.about-features { list-style: none; margin-top: 15px; padding-left: 5px; }
+.about-features li {
+color: #94a3b8; padding: 8px 0 8px 28px; position: relative; font-size: 0.95rem;
+}
+.about-features li::before {
+content: "✓"; position: absolute; left: 0; top: 8px;
+width: 20px; height: 20px; background: rgba(16, 185, 129, 0.2);
+border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 50%;
+color: #34d399; display: flex; align-items: center; justify-content: center;
+font-size: 0.75rem; font-weight: 600;
+}
+.about-card.featured {
+border-color: rgba(96, 165, 250, 0.5);
+background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(30, 41, 59, 0.7));
+box-shadow: 0 8px 32px rgba(14, 165, 233, 0.2), 0 0 0 1px rgba(96, 165, 250, 0.3);
+}
+.about-card.featured h3 { color: #67e8f9; }
+.tech-stack {
+display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+gap: 15px; margin-top: 20px;
+}
+.tech-item {
+background: rgba(15, 23, 42, 0.6); padding: 15px 20px; border-radius: 12px;
+border: 1px solid rgba(148, 163, 184, 0.2); text-align: center;
+transition: all 0.3s ease;
+}
+.tech-item:hover {
+transform: translateY(-3px); border-color: rgba(96, 165, 250, 0.4);
+box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
+}
+.tech-item .tech-icon { font-size: 2rem; margin-bottom: 8px; }
+.tech-item .tech-name { color: #67e8f9; font-weight: 600; font-size: 0.95rem; }
+.team-member {
+display: flex; align-items: center; gap: 15px; padding: 15px 20px;
+background: rgba(15, 23, 42, 0.6); border-radius: 12px;
+border: 1px solid rgba(148, 163, 184, 0.2); margin-bottom: 12px;
+transition: all 0.3s ease;
+}
+.team-member:hover {
+transform: translateX(5px); border-color: rgba(96, 165, 250, 0.4);
+box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
+}
+.team-avatar {
+width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+border-radius: 50%; display: flex; align-items: center; justify-content: center;
+font-size: 1.5rem; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.team-info .name { color: #fff; font-weight: 600; font-size: 1rem; }
+.team-info .role { color: #94a3b8; font-size: 0.85rem; }
+.objective-card {
+background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(30, 41, 59, 0.7));
+border-color: rgba(14, 165, 233, 0.4);
+}
+.security-footer {
+margin: 30px auto; padding: 12px 25px; background: rgba(30, 41, 59, 0.6);
+border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 50px;
+font-size: 0.85rem; color: #94a3b8; display: flex; align-items: center; gap: 8px;
+backdrop-filter: blur(10px); width: fit-content; animation: fadeInUp 0.6s ease 0.5s both;
+}
+.shield-icon { font-size: 1.1rem; color: #60a5fa; }
+.main-footer {
+background: rgba(15, 23, 42, 0.9); border-top: 1px solid rgba(148, 163, 184, 0.2);
+padding: 30px; margin-top: auto; text-align: center; backdrop-filter: blur(10px);
+animation: fadeInUp 0.6s ease 0.6s both;
+}
+.main-footer p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 8px; }
+.main-footer .developer { color: #67e8f9; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+.main-footer .developer:hover { color: #fff; text-decoration: underline; text-shadow: 0 0 10px rgba(103, 232, 249, 0.5); }
+.footer-links { margin-top: 15px; display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; }
+.footer-links a {
+color: #64748b; text-decoration: none; font-size: 0.85rem; transition: all 0.3s; position: relative;
+}
+.footer-links a::after {
+content: ""; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px;
+background: #67e8f9; transition: width 0.3s;
+}
+.footer-links a:hover { color: #67e8f9; }
+.footer-links a:hover::after { width: 100%; }
+.back-to-dashboard {
+display: inline-flex; align-items: center; gap: 8px; margin: 20px auto 30px;
+padding: 12px 24px; background: rgba(59, 130, 246, 0.2);
+border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 12px;
+color: #60a5fa; text-decoration: none; font-weight: 600; font-size: 0.95rem;
+transition: all 0.3s ease; width: fit-content; animation: fadeInUp 0.6s ease 0.5s both;
+}
+.back-to-dashboard:hover {
+background: rgba(59, 130, 246, 0.35); border-color: rgba(96, 165, 250, 0.7);
+color: #fff; transform: translateX(-4px); box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+.particle {
+position: fixed; width: 4px; height: 4px; background: rgba(14, 165, 233, 0.6);
+border-radius: 50%; animation: float 15s infinite linear; z-index: 0; pointer-events: none;
+}
+@keyframes float {
+0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+10% { opacity: 1; }
+90% { opacity: 1; }
+100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+}
+.toast-container {
+position: fixed; top: 20px; right: 20px; z-index: 2000;
+display: flex; flex-direction: column; gap: 10px; max-width: 350px;
+}
+.toast {
+background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(148, 163, 184, 0.3);
+border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
+animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards; max-width: 100%;
+}
+.toast.success { border-left: 4px solid #34d399; }
+.toast.error { border-left: 4px solid #f87171; }
+.toast.info { border-left: 4px solid #60a5fa; }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
+.toast-icon { font-size: 1.3rem; min-width: 24px; }
+.toast.success .toast-icon { color: #34d399; }
+.toast.error .toast-icon { color: #f87171; }
+.toast.info .toast-icon { color: #60a5fa; }
+.toast-message { flex: 1; font-size: 0.9rem; color: #cbd5e1; }
+.toast-close { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2rem; padding: 0 4px; transition: color 0.2s; }
+.toast-close:hover { color: #fff; }
+@media (max-width: 1024px) { .main-content { padding: 20px 15px; } .dashboard-container { margin: 70px auto 30px; } }
+@media (max-width: 768px) {
+.page-header h1 { font-size: 1.8rem; } .about-card { padding: 20px; }
+.footer-links { flex-direction: column; gap: 10px; }
+.toast-container { right: 10px; left: 10px; max-width: none; }
+.tech-stack { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+.page-header h1 { font-size: 1.5rem; } .about-card h3 { font-size: 1.2rem; }
+.menu-toggle { width: 45px; height: 45px; } .sidebar { width: 280px; }
+.tech-stack { grid-template-columns: 1fr; }
+}
+.sparkle {
+position: fixed; pointer-events: none; width: 8px; height: 8px;
+background: radial-gradient(circle, #fff, #0ea5e9, transparent 70%);
+border-radius: 50%; animation: sparkleAnim 0.6s ease-out forwards; z-index: 9999;
+}
+@keyframes sparkleAnim {
+0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+50% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+.shortcut-hint {
+position: fixed; bottom: 20px; right: 20px; background: rgba(30, 41, 59, 0.9);
+border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px;
+padding: 8px 14px; font-size: 0.8rem; color: #94a3b8;
+backdrop-filter: blur(10px); display: flex; align-items: center; gap: 6px;
+animation: fadeInUp 0.5s ease 1s both;
+}
+.shortcut-key { background: rgba(96, 165, 250, 0.2); padding: 2px 8px; border-radius: 4px; color: #60a5fa; font-weight: 600; }
+.face_bank { margin-left: 18px; }
+</style>
 </head>
 <body>
 
+<!-- 🔹 Menu Toggle Button -->
+<button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+<span class="bar"></span><span class="bar"></span><span class="bar"></span>
+</button>
+
+<!-- 🔹 Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- 🔹 Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-brand">
+<div class="sidebar-brand-icon">🏦</div>
+<h2 class="face_bank">Face Bank</h2>
+</div>
+</div>
+<ul class="nav-menu">
+<li class="nav-item"><a href="/dashboard" class="nav-link"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+<li class="nav-item"><a href="/services" class="nav-link"><span class="icon">⚙️</span><span class="text">Services</span></a></li>
+<li class="nav-item"><a href="/about" class="nav-link active"><span class="icon">ℹ️</span><span class="text">About Us</span></a></li>
+<li class="nav-item"><a href="/loans" class="nav-link"><span class="icon">💰</span><span class="text">Loan</span></a></li>
+<li class="nav-item"><a href="/schemes" class="nav-link"><span class="icon">🎁</span><span class="text">Schemes</span></a></li>
+</ul>
+<div class="sidebar-footer">
+<p>© 2024 Face Bank</p>
+<p>Developed by <a href="#" class="developer">Dushyanth N G</a></p>
+</div>
+</aside>
+
+<!-- 🔹 Main Content -->
+<main class="main-content">
+<div class="security-badge"><span>🔒</span> End-to-End Encrypted</div>
+<div class="scanner-line"></div>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+
+<div class="page-header">
 <h1>About Face Bank</h1>
+<p>A secure digital banking system demonstrating modern online banking features combined with facial recognition authentication.</p>
+</div>
 
-<p>
-Face Bank is a secure digital banking system developed to demonstrate modern
-online banking features combined with facial recognition authentication.
-The system allows users to manage their accounts, perform transactions,
-and access banking services in a secure and efficient way.
-</p>
+<!-- About Introduction -->
+<div class="about-card featured">
+<h3><span class="icon">🏦</span>Who We Are</h3>
+<p>Face Bank is a secure digital banking system developed to demonstrate modern online banking features combined with facial recognition authentication. The system allows users to manage their accounts, perform transactions, and access banking services in a secure and efficient way.</p>
+<p>This project focuses on improving banking security by integrating facial recognition technology with traditional banking operations such as account management, money transfers, transaction tracking, and administrative monitoring.</p>
+</div>
 
-<p>
-This project focuses on improving banking security by integrating facial
-recognition technology with traditional banking operations such as
-account management, money transfers, transaction tracking, and
-administrative monitoring.
-</p>
-
-<hr>
-
-<h2>Project Features</h2>
-
-<ul>
-<li>User account registration and login system</li>
-<li>Secure authentication with facial recognition</li>
-<li>Money transfer between users</li>
-<li>Transaction history tracking</li>
+<!-- Project Features -->
+<div class="about-card">
+<h3><span class="icon">⚡</span>Project Features</h3>
+<p>Our banking system comes packed with modern features designed for security, convenience, and efficiency.</p>
+<ul class="about-features">
+<li>User account registration and secure login system</li>
+<li>Facial recognition authentication for enhanced security</li>
+<li>Instant money transfer between users</li>
+<li>Complete transaction history tracking</li>
 <li>Admin dashboard for monitoring users and transactions</li>
 <li>Information pages for banking services, schemes, and loans</li>
 </ul>
+</div>
 
-<hr>
+<!-- Technology Stack -->
+<div class="about-card">
+<h3><span class="icon">🛠️</span>Technology Used</h3>
+<p>Built with cutting-edge technologies to ensure performance, security, and scalability.</p>
+<div class="tech-stack">
+<div class="tech-item">
+<div class="tech-icon">🐍</div>
+<div class="tech-name">Python Flask</div>
+</div>
+<div class="tech-item">
+<div class="tech-icon">🗄️</div>
+<div class="tech-name">MySQL</div>
+</div>
+<div class="tech-item">
+<div class="tech-icon">🌐</div>
+<div class="tech-name">HTML5</div>
+</div>
+<div class="tech-item">
+<div class="tech-icon">🎨</div>
+<div class="tech-name">CSS3</div>
+</div>
+<div class="tech-item">
+<div class="tech-icon">📸</div>
+<div class="tech-name">Face Recognition</div>
+</div>
+<div class="tech-item">
+<div class="tech-icon">🔧</div>
+<div class="tech-name">Git & GitHub</div>
+</div>
+</div>
+</div>
 
-<h2>Technology Used</h2>
+<!-- Development Team -->
+<div class="about-card">
+<h3><span class="icon">👥</span>Development Team</h3>
+<p>This project was developed by our talented team who collaborated in designing the banking system, implementing backend logic, integrating facial recognition authentication, and building the user interface.</p>
+<div class="team-member">
+<div class="team-avatar">👨‍💻</div>
+<div class="team-info">
+<div class="name">Dushyanth N G</div>
+<div class="role">Lead Developer</div>
+</div>
+</div>
+<div class="team-member">
+<div class="team-avatar">👨‍💻</div>
+<div class="team-info">
+<div class="name">Aravind M M G</div>
+<div class="role">Co-Developer</div>
+</div>
+</div>
+</div>
 
-<ul>
-<li>Python with Flask framework</li>
-<li>MySQL database</li>
-<li>HTML for web interface</li>
-<li>Face recognition libraries for authentication</li>
-<li>Git and GitHub for version control</li>
+<!-- Project Objective -->
+<div class="about-card objective-card">
+<h3><span class="icon">🎯</span>Project Objective</h3>
+<p>The main objective of Face Bank is to demonstrate how modern technologies such as biometric authentication can be integrated into digital banking systems to improve security, reliability, and user experience.</p>
+<ul class="about-features">
+<li>Enhance banking security with biometric authentication</li>
+<li>Provide seamless digital banking experience</li>
+<li>Demonstrate practical implementation of face recognition</li>
+<li>Create a scalable and maintainable banking system</li>
 </ul>
+</div>
 
-<hr>
+<div class="security-footer">
+<span class="shield-icon">🛡️</span> Biometric Authentication • 256-bit SSL • Secure & Reliable
+</div>
 
-<h2>Development Team</h2>
+<!-- Back to Dashboard - Bottom Position -->
+<a href="/dashboard" class="back-to-dashboard">← Back to Dashboard</a>
 
-<p>
-This project was developed by:
-</p>
+</div>
 
-<ul>
-<li><strong>Dushyanth N G</strong></li>
-<li><strong>Aravind M M G</strong></li>
-</ul>
+<!-- 🔹 Main Footer -->
+<footer class="main-footer">
+<p>© <script>document.write(new Date().getFullYear())</script> Face Bank. All rights reserved.</p>
+<p>Developed by <a href="#" class="developer">Dushyanth N G</a></p>
+<div class="footer-links">
+<a href="#">Privacy Policy</a>
+<a href="#">Terms of Service</a>
+<a href="#">Security</a>
+<a href="#">Contact Support</a>
+<a href="#">Help Center</a>
+</div>
+</footer>
+</main>
 
-<p>
-Both developers collaborated in designing the banking system, implementing
-the backend logic, integrating facial recognition authentication,
-and building the user interface for the application.
-</p>
+<div class="shortcut-hint"><span class="shortcut-key">Ctrl</span> + <span class="shortcut-key">K</span> to search</div>
 
-<hr>
+<script>
+// 🔹 Sidebar Toggle
+function toggleSidebar() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const menuToggle = document.getElementById('menuToggle');
+sidebar.classList.toggle('active');
+overlay.classList.toggle('active');
+menuToggle.classList.toggle('active');
+if (window.innerWidth <= 1024) {
+document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+}
+}
 
-<h2>Project Objective</h2>
+// 🔹 Toast Notifications
+function showToast(message, type = 'info') {
+const container = document.getElementById('toastContainer');
+const toast = document.createElement('div');
+toast.className = `toast ${type}`;
+const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span class="toast-message">${message}</span><button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+container.appendChild(toast);
+setTimeout(() => toast.remove(), 3000);
+}
 
-<p>
-The main objective of Face Bank is to demonstrate how modern technologies
-such as biometric authentication can be integrated into digital banking
-systems to improve security, reliability, and user experience.
-</p>
+// 🔹 Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+if (e.ctrlKey && e.key === 'k') { e.preventDefault(); showToast('Search focused', 'info'); }
+if (e.key === 'Escape') { const sb = document.getElementById('sidebar'); if (sb?.classList.contains('active')) toggleSidebar(); }
+});
 
-<br>
+// 🔹 DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+createParticles();
+const interactiveElements = document.querySelectorAll('input, button, a, .nav-link, .back-to-dashboard');
+interactiveElements.forEach(el => {
+el.addEventListener('mousemove', (e) => { if (Math.random() > 0.85) createSparkle(e.pageX, e.pageY); });
+});
+document.querySelectorAll('button').forEach(button => {
+button.addEventListener('click', function(e) {
+if (this.classList.contains('toast-close')) return;
+const ripple = document.createElement('span');
+const rect = this.getBoundingClientRect();
+const size = Math.max(rect.width, rect.height);
+const x = e.clientX - rect.left - size / 2;
+const y = e.clientY - rect.top - size / 2;
+ripple.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,0.3);left:${x}px;top:${y}px;transform:scale(0);animation:ripple 0.6s ease-out;pointer-events:none;`;
+this.style.position = 'relative'; this.style.overflow = 'hidden'; this.appendChild(ripple);
+setTimeout(() => ripple.remove(), 600);
+});
+});
+window.addEventListener('resize', () => {
+if (window.innerWidth > 1024) {
+document.getElementById('sidebar')?.classList.remove('active');
+document.getElementById('sidebarOverlay')?.classList.remove('active');
+document.getElementById('menuToggle')?.classList.remove('active');
+document.body.style.overflow = 'auto';
+}
+});
+});
 
-<a href="/dashboard">Back to Dashboard</a>
-
+// 🔹 Particles & Sparkles
+function createParticles() {
+const body = document.body;
+for (let i = 0; i < 15; i++) {
+const p = document.createElement('div');
+p.className = 'particle';
+p.style.left = Math.random() * 100 + 'vw';
+p.style.animationDelay = Math.random() * 15 + 's';
+p.style.animationDuration = (12 + Math.random() * 10) + 's';
+body.appendChild(p);
+}
+}
+function createSparkle(x, y) {
+const s = document.createElement('div');
+s.className = 'sparkle';
+s.style.left = x + 'px'; s.style.top = y + 'px';
+document.body.appendChild(s);
+setTimeout(() => s.remove(), 600);
+}
+const style = document.createElement('style');
+style.textContent = `@keyframes ripple { to { transform: scale(2); opacity: 0; } }`;
+document.head.appendChild(style);
+</script>
 </body>
 </html>
