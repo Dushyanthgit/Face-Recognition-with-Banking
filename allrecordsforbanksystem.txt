@@ -617,3 +617,14 @@ Experience banking that puts your security and convenience first. Our innovative
 🚀 Fast and reliable instant transactions
 💙 Customer-friendly schemes with transparent terms
 🛡️ Advanced fraud protection and encryption
+
+How to apply for loan?
+To apply for a loan in Face Bank:
+
+1. Login to your account
+2. Go to Loan Services
+3. Select loan type
+4. Fill the application form
+5. Upload required documents
+6. Submit application
+
