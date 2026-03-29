@@ -1290,19 +1290,13 @@ function closeModal() {
 document.getElementById('confirmModal').classList.remove('active');
 }
 function processTransfer() {
-const btn = event.target;
-btn.disabled = true;
-btn.classList.add('loading');
-setTimeout(() => {
-showToast(`₹${transferData.amount} transferred successfully!`, 'success');
-const balanceEl = document.getElementById('balanceDisplay');
-balanceEl.classList.add('animate');
-setTimeout(() => balanceEl.classList.remove('animate'), 400);
-closeModal();
-btn.disabled = false;
-btn.classList.remove('loading');
-document.getElementById('transferForm').reset();
-}, 1500);
+    const btn = event.target;
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    setTimeout(() => {
+        document.getElementById('transferForm').submit();  // 🔥 THIS IS THE FIX
+    }, 500);
 }
 function animateBalance() {
 const balanceEl = document.getElementById('balanceDisplay');

@@ -12,7 +12,7 @@ import google.generativeai as genai
 
 app = Flask(__name__)
 
-genai.configure(api_key="")
+genai.configure(api_key="AIzaSyCZuKKo0k6eR_Oy1DrzO8XVOgVBo9_5YMA")
 
 model = genai.GenerativeModel("models/gemini-2.5-flash")
 
@@ -146,7 +146,6 @@ def register():
         return redirect('/login')
 
     return render_template("register.html")
-
 # ---------------- LOGIN ----------------
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -165,10 +164,14 @@ def login():
         stored_encoding = pickle.loads(user[2])
 
         video = cv2.VideoCapture(0)
-        print("Look at camera...")
+
+        print("Look at camera and press S")
 
         while True:
             ret, frame = video.read()
+            if not ret:
+                continue
+
             cv2.imshow("Login - Press S to capture", frame)
 
             if cv2.waitKey(1) & 0xFF == ord('s'):
@@ -178,15 +181,29 @@ def login():
         cv2.destroyAllWindows()
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        encodings = face_recognition.face_encodings(rgb)
 
-        if len(encodings) == 0:
+        # detect faces
+        face_locations = face_recognition.face_locations(rgb)
+
+        if len(face_locations) == 0:
             return "Face not detected"
 
-        login_encoding = encodings[0]
-        match = face_recognition.compare_faces([stored_encoding], login_encoding)
+        if len(face_locations) > 1:
+            return "Multiple faces detected"
 
-        if match[0]:
+        encodings = face_recognition.face_encodings(rgb, face_locations)
+
+        if len(encodings) == 0:
+            return "Face encoding failed"
+
+        login_encoding = encodings[0]
+
+        # strict distance check
+        distance = face_recognition.face_distance([stored_encoding], login_encoding)
+
+        print("Face distance:", distance[0])
+
+        if distance[0] < 0.40:   # STRICT MATCH
             session['user_id'] = user_id
             session['name'] = name
             return redirect('/dashboard')
@@ -345,68 +362,114 @@ def search():
 # ---------------- TRANSFER MONEY (ACID SAFE) ----------------
 @app.route('/transaction', methods=['POST'])
 def transaction():
+
     if 'user_id' not in session:
         return redirect('/login')
 
-    receiver_acc = request.form['receiver_account']
-    amount = float(request.form['amount'])
-
-    cursor = mysql.connection.cursor()
-
     try:
-        mysql.connection.begin()
+        receiver_acc = request.form['receiver_account'].strip()
+        
+        try:
+            amount = float(request.form['amount'])
+        except:
+            return "Invalid amount format"
+
+        if amount <= 0:
+            return "Invalid amount"
+
+        cursor = mysql.connection.cursor()
+
+        mysql.connection.begin()  # Atomicity
 
         # Lock sender
-        cursor.execute("SELECT id,balance FROM users WHERE id=%s FOR UPDATE",(session['user_id'],))
+        cursor.execute("""
+            SELECT id, balance, status 
+            FROM users                  
+            WHERE id=%s FOR UPDATE
+        """, (session['user_id'],))
+
         sender = cursor.fetchone()
 
+        if not sender:
+            mysql.connection.rollback()
+            return "Sender not found"
+
+        sender_id, sender_balance, sender_status = sender
+
+        if sender_status == "frozen":
+            mysql.connection.rollback()
+            return "Your account is frozen"
+
         # Lock receiver
-        cursor.execute("SELECT id,balance FROM users WHERE account_number=%s FOR UPDATE",(receiver_acc,))
+        cursor.execute("""
+            SELECT id, balance, status 
+            FROM users 
+            WHERE account_number=%s FOR UPDATE
+        """, (receiver_acc,))
+
         receiver = cursor.fetchone()
 
         if not receiver:
             mysql.connection.rollback()
             return "Receiver not found"
 
-        sender_id, sender_balance = sender
-        receiver_id, receiver_balance = receiver
+        receiver_id, receiver_balance, receiver_status = receiver
+
+        if receiver_status == "frozen":
+            mysql.connection.rollback()
+            return "Receiver account frozen"
+
+        if sender_id == receiver_id:
+            mysql.connection.rollback()
+            return "Cannot transfer to same account"
 
         if amount > sender_balance:
             mysql.connection.rollback()
-            return "Insufficient Balance"
+            flash("Insufficient balance", "error")
+            return redirect('/dashboard')
 
         new_sender_balance = sender_balance - amount
         new_receiver_balance = receiver_balance + amount
 
         # Update balances
-        cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
-                       (new_sender_balance, sender_id))
-        cursor.execute("UPDATE users SET balance=%s WHERE id=%s",
-                       (new_receiver_balance, receiver_id))
-
-        # Insert transaction records
         cursor.execute("""
-            INSERT INTO transactions 
-            (sender_id,receiver_id,amount,type,balance_after) 
-            VALUES (%s,%s,%s,%s,%s)
-        """,(sender_id,receiver_id,amount,"debit",new_sender_balance))
+            UPDATE users 
+            SET balance=%s 
+            WHERE id=%s
+        """, (new_sender_balance, sender_id))
 
+        cursor.execute("""
+            UPDATE users 
+            SET balance=%s 
+            WHERE id=%s
+        """, (new_receiver_balance, receiver_id))
+
+        # Debit transaction
         cursor.execute("""
             INSERT INTO transactions
-            (sender_id,receiver_id,amount,type,balance_after) 
-            VALUES (%s,%s,%s,%s,%s)
-        """,(sender_id,receiver_id,amount,"credit",new_receiver_balance))
+            (sender_id, receiver_id, amount, type, balance_after)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (sender_id, receiver_id, amount, "debit", new_sender_balance))
+
+        # Credit transaction
+        cursor.execute("""
+            INSERT INTO transactions
+            (sender_id, receiver_id, amount, type, balance_after)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (sender_id, receiver_id, amount, "credit", new_receiver_balance))
 
         mysql.connection.commit()
 
+        return redirect('/dashboard')
+
     except Exception as e:
         mysql.connection.rollback()
+        print("ERROR:", e)
         return str(e)
 
-    return redirect('/dashboard')
 
 
-# ---------------- LOGOUT ----------------
+# ---------------- LOGOUT ------------------
 @app.route('/logout')
 def logout():
     session.clear()
